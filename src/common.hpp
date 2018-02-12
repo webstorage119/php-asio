@@ -12,13 +12,21 @@
 
 // Compatible with PHP 7.3
 #if PHP_VERSION_ID < 70300
+
 #define GC_ADDREF(p) ++GC_REFCOUNT(p)
 #define GC_DELREF(p) --GC_REFCOUNT(p)
-#endif
 
 // See https://externals.io/message/101364 for details.
-// The following code will be removed once the issue is fixed.
 #undef ZEND_PARSE_PARAMETERS_START_EX
+
+#if PHP_VERSION_ID < 70100
+#define _zend_wrong_parameters_count_error(throw, ...) zend_wrong_paramers_count_error(__VA_ARGS__)
+#elif PHP_VERSION_ID < 70200
+#define _zend_wrong_parameters_count_error(throw, ...) zend_wrong_parameters_count_error(__VA_ARGS__)
+#else
+#define _zend_wrong_parameters_count_error(...) zend_wrong_parameters_count_error(__VA_ARGS__)
+#endif
+
 #define ZEND_PARSE_PARAMETERS_START_EX(flags, min_num_args, max_num_args) do { \
     const int _flags = (flags); \
     int _min_num_args = (min_num_args); \
@@ -43,13 +51,16 @@
             (UNEXPECTED(_num_args > _max_num_args) && \
              EXPECTED(_max_num_args >= 0))) { \
             if (!(_flags & ZEND_PARSE_PARAMS_QUIET)) { \
-                zend_wrong_parameters_count_error(_num_args, _min_num_args, _max_num_args); \
+                _zend_wrong_parameters_count_error(_flags & ZEND_PARSE_PARAMS_THROW, \
+                    _num_args, _min_num_args, _max_num_args); \
             } \
             error_code = ZPP_ERROR_FAILURE; \
             break; \
         } \
         _i = 0; \
         _real_arg = ZEND_CALL_ARG(execute_data, 0);
+
+#endif
 
 #define PHP_ASIO_OBJ_ALLOC(obj, type, arg) \
     auto obj = p3::allocObject<type>(type::class_entry, [this](type* ptr) { \

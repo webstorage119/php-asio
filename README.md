@@ -37,8 +37,12 @@ A detailed documentation will be coming soon once the first stable version is re
 
 ## 4. TODO list
 
-* Fix segfault on forked children. (Priority: **high**)
-
 * Fix memory leak. (Priority: **very high**. Nothing's wrong on valgrind though, but memory consumption keep rising during bandwidth tests. Bit weird)
 
+* Fix segfault on forked children. (Priority: **high**)
+
+* Prevent copying of buffers on socket I/O for better performance. (Priority: **medium**)
+
 * Finish `StreamDescriptor`. (Priority: **medium**)
+
+* Add support for Windows. (Priority: **low**)
