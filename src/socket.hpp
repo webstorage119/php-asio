@@ -60,7 +60,7 @@ namespace Asio
         template <typename P = Protocol, typename =
             enable_if_same<boost::asio::basic_stream_socket<P>, typename P::socket>>
         zval* read_handler(const boost::system::error_code& error,
-            size_t length, std::vector<char>* buffer, zval* callback, zval* argument);
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
 
         /**
          * Write/send handler for socket.
@@ -69,7 +69,7 @@ namespace Asio
          * @param buffer : Write buffer
          */
         zval* write_handler(const boost::system::error_code& error,
-            size_t length, std::string* buffer, zval* callback, zval* argument);
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
 
         /**
          * Receive handler for datagram socket.
@@ -78,7 +78,7 @@ namespace Asio
          * @param buffer : Write buffer
          */
         zval* recv_handler(const boost::system::error_code& error, size_t length,
-            std::vector<char>* buffer, typename Protocol::endpoint* endpoint,
+            zend_string* buffer, typename Protocol::endpoint* endpoint,
             zval* callback, zval* argument);
 
     public:

@@ -81,7 +81,7 @@ namespace p3 {
 
     template <class T>
     typename std::enable_if<!std::is_constructible<T>::value, zend_object*>::type
-        createObject(zend_class_entry *ce)
+        createObject(zend_class_entry* ce)
     {
         assert(false);
         return nullptr;

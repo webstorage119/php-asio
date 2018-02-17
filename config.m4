@@ -1,14 +1,17 @@
-PHP_ARG_ENABLE(asio,           for asio support,
-[  --enable-asio             Enable asio support        ])
+PHP_ARG_ENABLE(asio,               for asio support,
+[  --enable-asio               Enable asio support        ])
 
-PHP_ARG_ENABLE(asio-coroutine, for coroutine support,
-[  --disable-asio-coroutine  Disable coroutine support  ], yes, no)
+PHP_ARG_ENABLE(asio-coroutine,     for coroutine support,
+[  --disable-asio-coroutine    Disable coroutine support  ], yes, no)
 
-PHP_ARG_ENABLE(asio-strand,    for strand support,
-[  --enable-asio-strand      Enable strand support      ], no, no)
+PHP_ARG_ENABLE(asio-strand,        for strand support,
+[  --enable-asio-strand        Enable strand support      ], no, no)
 
-PHP_ARG_ENABLE(asio-debug,     for strand support,
-[  --enable-asio-debug       Compile with debug symbols ], no, no)
+PHP_ARG_ENABLE(asio-null-buffers,  for null buffer support,
+[  --enable-asio-null-buffers  Enable null buffers        ], no, no)
+
+PHP_ARG_ENABLE(asio-debug,         for debug support,
+[  --enable-asio-debug         Compile with debug symbols ], no, no)
 
 if test "$PHP_ASIO" != "no"; then
   PHP_REQUIRE_CXX()
@@ -24,6 +27,9 @@ if test "$PHP_ASIO" != "no"; then
   fi
   if test "$PHP_ASIO_STRAND" != "no"; then
     CXXFLAGS+="-DENABLE_STRAND "
+  fi
+  if test "$PHP_ASIO_NULL_BUFFERS" != "no"; then
+    CXXFLAGS+="-DENABLE_NULL_BUFFERS "
   fi
 
   PHP_SUBST(ASIO_SHARED_LIBADD)

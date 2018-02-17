@@ -7,6 +7,7 @@
 #include "socket.hpp"
 #include "future.hpp"
 #include "stream_descriptor.hpp"
+#include "buffer.hpp"
 
 namespace Asio
 {
@@ -22,22 +23,27 @@ namespace Asio
 
     template <typename Protocol> template <typename, typename>
     zval* Socket<Protocol>::read_handler(const boost::system::error_code& error,
-        size_t length, std::vector<char>* buffer, zval* callback, zval* argument)
+        size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
-        auto str_buffer = zend_string_init(buffer->data(), length, 0);
-        delete buffer;
+        // Zend strings have to be zero-terminated.
+        // Otherwise you'll get E_WARNING on zval dtor.
+        ZSTR_VAL(buffer)[length] = '\0';
+        ZSTR_LEN(buffer) = length;
         PHP_ASIO_INVOKE_CALLBACK_START(4)
-            ZVAL_STR(&arguments[1], str_buffer);
+            ZVAL_STR(&arguments[1], buffer);
             PHP_ASIO_INVOKE_CALLBACK();
         PHP_ASIO_INVOKE_CALLBACK_END();
-        CORO_RETURN(ZVAL_STR, str_buffer);
+        CORO_RETURN(ZVAL_STR, buffer);
     }
 
     template <typename Protocol>
     zval* Socket<Protocol>::write_handler(const boost::system::error_code& error,
-        size_t length, std::string* buffer, zval* callback, zval* argument)
+        size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
-        delete buffer;
+#ifdef ENABLE_NULL_BUFFERS
+        if (buffer)
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_release(buffer);
         PHP_ASIO_INVOKE_CALLBACK_START(4)
             ZVAL_LONG(&arguments[1], static_cast<zend_long>(length));
             PHP_ASIO_INVOKE_CALLBACK();
@@ -47,17 +53,17 @@ namespace Asio
 
     template <>
     zval* UdpSocket::recv_handler(const boost::system::error_code& error,
-        size_t length, std::vector<char>* buffer, udp::endpoint* endpoint,
+        size_t length, zend_string* buffer, udp::endpoint* endpoint,
         zval* callback, zval* argument)
     {
-        auto str_buffer = zend_string_init(buffer->data(), length, 0);
-        delete buffer;
+        ZSTR_VAL(buffer)[length] = '\0';
+        ZSTR_LEN(buffer) = length;
 #ifdef ENABLE_COROUTINE
         last_addr_<> = endpoint->address().to_string();
         last_port_<> = endpoint->port();
 #endif // ENABLE_COROUTINE
         PHP_ASIO_INVOKE_CALLBACK_START(6)
-            ZVAL_STR(&arguments[1], str_buffer);
+            ZVAL_STR(&arguments[1], buffer);
 #ifdef ENABLE_COROUTINE
             ZVAL_STRING(&arguments[2], last_addr_<>.data());
             ZVAL_LONG(&arguments[3], static_cast<zend_long>(last_port_<>));
@@ -69,21 +75,21 @@ namespace Asio
             zval_ptr_dtor(&arguments[2]);
         PHP_ASIO_INVOKE_CALLBACK_END();
         delete endpoint;
-        CORO_RETURN(ZVAL_STR, str_buffer);
+        CORO_RETURN(ZVAL_STR, buffer);
     }
 
     template <>
     zval* UdgSocket::recv_handler(const boost::system::error_code& error,
-        size_t length, std::vector<char>* buffer, udg::endpoint* endpoint,
+        size_t length, zend_string* buffer, udg::endpoint* endpoint,
         zval* callback, zval* argument)
     {
-        auto str_buffer = zend_string_init(buffer->data(), length, 0);
-        delete buffer;
+        ZSTR_VAL(buffer)[length] = '\0';
+        ZSTR_LEN(buffer) = length;
 #ifdef ENABLE_COROUTINE
         last_path_<> = endpoint->path();
 #endif // ENABLE_COROUTINE
         PHP_ASIO_INVOKE_CALLBACK_START(5)
-            ZVAL_STR(&arguments[1], str_buffer);
+            ZVAL_STR(&arguments[1], buffer);
 #ifdef ENABLE_COROUTINE
             ZVAL_STRING(&arguments[2], last_path_<>.data());
 #else
@@ -93,7 +99,7 @@ namespace Asio
             zval_ptr_dtor(&arguments[2]);
         PHP_ASIO_INVOKE_CALLBACK_END();
         delete endpoint;
-        CORO_RETURN(ZVAL_STR, str_buffer);
+        CORO_RETURN(ZVAL_STR, buffer);
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_INET(P)>
@@ -220,20 +226,31 @@ namespace Asio
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
-        if (UNEXPECTED(length < 0)) {
-            PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected.");
-            RETURN_NULL();
-        }
-        const auto size = static_cast<size_t>(length);
-        auto buffer_container = new std::vector<char>(size);
-        auto buffer = boost::asio::buffer(*buffer_container, size);
+        PHP_ASIO_BUFFER_LEN_VALIDATE();
+        auto buffer_container = 
+#ifdef ENABLE_NULL_BUFFERS
+            length == 0 ? ZSTR_EMPTY_ALLOC() :
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_alloc(static_cast<size_t>(length), 0);
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(
-            &Socket::read_handler, this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
-        if (read_some)
-            socket_.async_read_some(buffer, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        future->on_resolve<size_t>(boost::bind(&Socket::read_handler,
+            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+#ifdef ENABLE_NULL_BUFFERS
+        if (length == 0)
+            if (read_some)
+                socket_.async_read_some(boost::asio::null_buffers(),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+            else
+                async_read(socket_, boost::asio::null_buffers(),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         else
-            async_read(socket_, buffer, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+#endif //ENABLE_NULL_BUFFERS
+            if (read_some)
+                socket_.async_read_some(mutable_buffer(buffer_container),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+            else
+                async_read(socket_, mutable_buffer(buffer_container),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         FUTURE_RETURN();
     }
 
@@ -251,16 +268,30 @@ namespace Asio
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
-        auto buffer = new std::string(ZSTR_VAL(data), ZSTR_LEN(data));
+        auto buffer_container =
+#ifdef ENABLE_NULL_BUFFERS
+            ZSTR_LEN(data) == 0 ? nullptr :
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(
-            &Socket::write_handler, this, _1, _2, buffer, STRAND_UNWRAP(), argument));
-        if (write_some)
-            socket_.async_write_some(boost::asio::buffer(*buffer),
-                STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        future->on_resolve<size_t>(boost::bind(&Socket::write_handler,
+            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+#ifdef ENABLE_NULL_BUFFERS
+        if (ZSTR_LEN(data) == 0)
+            if (write_some)
+                socket_.async_write_some(boost::asio::null_buffers(),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+            else
+                async_write(socket_, boost::asio::null_buffers(),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         else
-            async_write(socket_, boost::asio::buffer(*buffer),
-                STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+#endif //ENABLE_NULL_BUFFERS
+            if (write_some)
+                socket_.async_write_some(mutable_buffer(buffer_container),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+            else
+                async_write(socket_, mutable_buffer(buffer_container),
+                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         FUTURE_RETURN();
     }
 
@@ -276,18 +307,24 @@ namespace Asio
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
-        if (UNEXPECTED(length < 0)) {
-            PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected.");
-            RETURN_NULL();
-        }
-        const auto size = static_cast<size_t>(length);
-        auto buffer_container = new std::vector<char>(size);
-        auto buffer = boost::asio::buffer(*buffer_container, size);
+        PHP_ASIO_BUFFER_LEN_VALIDATE();
+        auto buffer_container =
+#ifdef ENABLE_NULL_BUFFERS
+            length == 0 ? ZSTR_EMPTY_ALLOC() :
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_alloc(static_cast<size_t>(length), 0);
         auto endpoint = new typename Protocol::endpoint;
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<size_t>(boost::bind(&Socket::recv_handler,
             this, _1, _2, buffer_container, endpoint, STRAND_UNWRAP(), args));
-        socket_.async_receive_from(buffer, *endpoint, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+#ifdef ENABLE_NULL_BUFFERS
+        if (length == 0)
+            socket_.async_receive_from(boost::asio::null_buffers(),
+                *endpoint, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        else
+#endif // ENABLE_NULL_BUFFERS
+            socket_.async_receive_from(mutable_buffer(buffer_container),
+                *endpoint, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         FUTURE_RETURN();
     }
 
@@ -312,12 +349,22 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_END();
         const udp::endpoint endpoint(boost::asio::ip::address::from_string(ZSTR_VAL(address)),
             static_cast<unsigned short>(port));
-        const auto buffer = new std::string(ZSTR_VAL(data), ZSTR_LEN(data));
+        const auto buffer_container =
+#ifdef ENABLE_NULL_BUFFERS
+            ZSTR_LEN(data) == 0 ? nullptr :
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(
-            &Socket::write_handler, this, _1, _2, buffer, STRAND_UNWRAP(), args));
-        socket_.async_send_to(boost::asio::buffer(*buffer), endpoint,
-            STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        future->on_resolve<size_t>(boost::bind(&Socket::write_handler,
+            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+#ifdef ENABLE_NULL_BUFFERS
+        if (ZSTR_LEN(data) == 0)
+            socket_.async_send_to(boost::asio::null_buffers(),
+                endpoint, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        else
+#endif // ENABLE_NULL_BUFFERS
+            socket_.async_send_to(const_buffer(buffer_container),
+                endpoint, STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         FUTURE_RETURN();
     }
     /* }}} */
@@ -339,12 +386,22 @@ namespace Asio
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
-        const auto buffer = new std::string(ZSTR_VAL(data));
+        const auto buffer_container =
+#ifdef ENABLE_NULL_BUFFERS
+            ZSTR_LEN(data) == 0 ? nullptr :
+#endif //ENABLE_NULL_BUFFERS
+            zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<size_t>(boost::bind(
-            &Socket::write_handler, this, _1, _2, buffer, STRAND_UNWRAP(), args));
-        socket_.async_send_to(boost::asio::buffer(*buffer), { ZSTR_VAL(path) },
-            STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+            &Socket::write_handler, this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+#ifdef ENABLE_NULL_BUFFERS
+        if (ZSTR_LEN(data) == 0)
+            socket_.async_send_to(boost::asio::null_buffers(), { ZSTR_VAL(path) },
+                STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
+        else
+#endif //ENABLE_NULL_BUFFERS
+            socket_.async_send_to(const_buffer(buffer_container), { ZSTR_VAL(path) },
+                STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
         FUTURE_RETURN();
     }
     /* }}} */
@@ -471,7 +528,7 @@ namespace Asio
     template P3_METHOD(TcpSocket, assign_inet);
     template P3_METHOD(TcpSocket, bind_inet);
     template zval* TcpSocket::read_handler(const boost::system::error_code&,
-        size_t, std::vector<char>*, zval*, zval*);
+        size_t, zend_string*, zval*, zval*);
     template P3_METHOD(TcpSocket, read);
     template P3_METHOD(TcpSocket, write);
 
@@ -480,7 +537,7 @@ namespace Asio
     template P3_METHOD(UnixSocket, assign_local);
     template P3_METHOD(UnixSocket, bind_local);
     template zval* UnixSocket::read_handler(const boost::system::error_code&,
-        size_t, std::vector<char>*, zval*, zval*);
+        size_t, zend_string*, zval*, zval*);
     template P3_METHOD(UnixSocket, read);
     template P3_METHOD(UnixSocket, write);
 
