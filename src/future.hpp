@@ -24,7 +24,6 @@ namespace Asio
         void* callback_ = nullptr;
 
 #ifdef ENABLE_COROUTINE
-
         /// Last error code emitted by yielded async operations of this thread.
         static thread_local int64_t last_error_;
 
@@ -33,7 +32,6 @@ namespace Asio
 
         /// Whether this future is yielded by a Generator.
         bool yield_ = false;
-
 #endif // ENABLE_COROUTINE
 
         /// Value which will be sent back to the Generator.

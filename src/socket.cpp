@@ -511,7 +511,6 @@ namespace Asio
     zend_object_handlers Socket<Protocol>::handlers;
 
 #ifdef ENABLE_COROUTINE
-
     template <typename Protocol> template <typename, typename>
     thread_local std::string Socket<Protocol>::last_addr_;
 
@@ -520,7 +519,6 @@ namespace Asio
 
     template <typename Protocol> template <typename, typename>
     thread_local std::string Socket<Protocol>::last_path_;
-
 #endif // ENABLE_COROUTINE
 
     template class Socket<tcp>;

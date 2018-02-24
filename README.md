@@ -37,9 +37,7 @@ A detailed documentation will be coming soon once the first stable version is re
 
 ## 4. TODO list
 
-* Fix memory leak. (Priority: **very high**. Nothing's wrong on valgrind though, but memory consumption keep rising during bandwidth tests. Bit weird)
-
-* Fix segfault on forked children. (Priority: **high**)
+* Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
 
 * Finish `StreamDescriptor`. (Priority: **medium**)
 

@@ -91,9 +91,7 @@ namespace p3 {
     void dtorObject(zend_object *obj)
     {
         zend_object_std_dtor(obj);
-        auto cobj = toObject<T>(obj);
-        cobj->~T();
-        efree(cobj);
+        toObject<T>(obj)->~T();
     }
 
     template <class T>

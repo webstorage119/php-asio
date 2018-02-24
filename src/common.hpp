@@ -71,7 +71,7 @@
     GC_ADDREF(obj)
 
 #define PHP_ASIO_OBJ_DTOR(type) \
-    p3::dtorObject<type>(p3::toZendObject(this))
+    GC_DELREF(p3::toZendObject(this))
 
 #define ZVAL_ALLOC(name) name = static_cast<zval*>(emalloc(sizeof(zval)))
 #define ZVAL_PTR_INIT(name) auto ZVAL_ALLOC(name)

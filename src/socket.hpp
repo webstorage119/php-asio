@@ -29,7 +29,6 @@ namespace Asio
         using enable_if_same = std::enable_if_t<std::is_same<T1, T2>::value>;
 
 #ifdef ENABLE_COROUTINE
-
         /// Address of client who sent the last request.
         template <typename P = Protocol, typename = enable_if_same<P, udp>>
         static thread_local std::string last_addr_;
@@ -41,7 +40,6 @@ namespace Asio
         /// Socket path of client who sent the last request.
         template <typename P = Protocol, typename = enable_if_same<P, udg>>
         static thread_local std::string last_path_;
-
 #endif // ENABLE_COROUTINE
 
         /**
