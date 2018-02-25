@@ -37,12 +37,10 @@ A detailed documentation will be coming soon once the first stable version is re
 
 ## 4. TODO list
 
-* Fix memory leak. (Priority: **very high**. Nothing's wrong on valgrind though, but memory consumption keep rising during bandwidth tests. Bit weird)
-
-* Fix segfault on forked children. (Priority: **high**)
-
-* Prevent copying of buffers on socket I/O for better performance. (Priority: **medium**)
+* Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
 
 * Finish `StreamDescriptor`. (Priority: **medium**)
+
+* Add socket `onReadable()` `onWritable()` `onError()` methods (with Boost version 1.66 and above). (Priority: **low**)
 
 * Add support for Windows. (Priority: **low**)

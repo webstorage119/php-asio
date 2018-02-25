@@ -48,7 +48,7 @@ namespace Asio
         efree(send_);
         delete callback;
 #ifdef ENABLE_COROUTINE
-        PHP_ASIO_OBJ_DTOR(Future);
+        PHP_ASIO_OBJ_DTOR();
 #else
         delete this;
 #endif // ENABLE_COROUTINE
@@ -70,9 +70,9 @@ namespace Asio
 #ifdef ENABLE_COROUTINE
     void Future::coroutine(zval* value)
     {
-        if (Z_TYPE_P(value) == IS_OBJECT) {
+        if (Z_TYPE_P(value) == IS_OBJECT && instanceof_function(Z_OBJCE_P(value), zend_ce_generator)) {
             const auto generator = reinterpret_cast<zend_generator*>(Z_OBJ_P(value));
-            if (instanceof_function(Z_OBJCE_P(value), zend_ce_generator) && generator_valid(generator)) {
+            if (generator_valid(generator)) {
                 auto ret = generator_current(generator);
                 if (ret && instanceof_function(Z_OBJCE_P(ret), class_entry)) {
                     const auto future = p3::toObject<Future>(ret);

@@ -81,7 +81,7 @@ namespace p3 {
 
     template <class T>
     typename std::enable_if<!std::is_constructible<T>::value, zend_object*>::type
-        createObject(zend_class_entry *ce)
+        createObject(zend_class_entry* ce)
     {
         assert(false);
         return nullptr;
@@ -91,9 +91,7 @@ namespace p3 {
     void dtorObject(zend_object *obj)
     {
         zend_object_std_dtor(obj);
-        auto cobj = toObject<T>(obj);
-        cobj->~T();
-        efree(cobj);
+        toObject<T>(obj)->~T();
     }
 
     template <class T>

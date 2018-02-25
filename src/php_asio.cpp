@@ -195,7 +195,6 @@ static zend_function_entry service_methods[] = {
 };
 
 #ifdef ENABLE_STRAND
-
 static zend_function_entry strand_methods[] = {
     P3_ME_D(Asio::Strand, dispatch, strand_dispatch_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Strand, post, strand_dispatch_arginfo, ZEND_ACC_PUBLIC)
@@ -209,7 +208,6 @@ static zend_function_entry wrapped_handler_methods[] = {
     P3_ME_D(Asio::WrappedHandler, __invoke, nullptr, ZEND_ACC_PUBLIC | ZEND_ACC_CALL_VIA_TRAMPOLINE)
     PHP_FE_END
 };
-
 #endif // ENABLE_STRAND
 
 static zend_function_entry timer_methods[] = {
@@ -367,21 +365,13 @@ static zend_function_entry unix_acceptor_methods[] = {
 /* }}} */
 
 /* {{{ interfaces class_entry */
-
 auto resolver_ce = p3::initClassEntry<void>("Asio\\Resolver", resolver_methods);
-
 auto socket_ce = p3::initClassEntry<void>("Asio\\Socket", socket_methods);
-
 auto inet_socket_ce = p3::initClassEntry<void>("Asio\\InetSocket", inet_socket_methods);
-
 auto local_socket_ce = p3::initClassEntry<void>("Asio\\LocalSocket", local_socket_methods);
-
 auto stream_socket_ce = p3::initClassEntry<void>("Asio\\StreamSocket", stream_socket_methods);
-
 auto datagram_socket_ce = p3::initClassEntry<void>("Asio\\DatagramSocket", datagram_socket_methods);
-
 auto acceptor_ce = p3::initClassEntry<void>("Asio\\Acceptor", acceptor_methods);
-
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION */

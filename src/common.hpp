@@ -7,17 +7,17 @@
 #pragma once
 
 #include "p3.hpp"
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 // Compatible with PHP 7.3
 #if PHP_VERSION_ID < 70300
-
 #define GC_ADDREF(p) ++GC_REFCOUNT(p)
 #define GC_DELREF(p) --GC_REFCOUNT(p)
+#endif
 
-// See https://externals.io/message/101364 for details.
-#undef ZEND_PARSE_PARAMETERS_START_EX
+#if PHP_VERSION_ID < 70115 || (PHP_VERSION_ID > 70200 && PHP_VERSION_ID < 70203)
 
 #if PHP_VERSION_ID < 70100
 #define _zend_wrong_parameters_count_error(throw, ...) zend_wrong_paramers_count_error(__VA_ARGS__)
@@ -27,6 +27,8 @@
 #define _zend_wrong_parameters_count_error(...) zend_wrong_parameters_count_error(__VA_ARGS__)
 #endif
 
+// See https://externals.io/message/101364 for details.
+#undef ZEND_PARSE_PARAMETERS_START_EX
 #define ZEND_PARSE_PARAMETERS_START_EX(flags, min_num_args, max_num_args) do { \
     const int _flags = (flags); \
     int _min_num_args = (min_num_args); \
@@ -68,8 +70,8 @@
     }); \
     GC_ADDREF(obj)
 
-#define PHP_ASIO_OBJ_DTOR(type) \
-    p3::dtorObject<type>(p3::toZendObject(this))
+#define PHP_ASIO_OBJ_DTOR() \
+    GC_DELREF(p3::toZendObject(this))
 
 #define ZVAL_ALLOC(name) name = static_cast<zval*>(emalloc(sizeof(zval)))
 #define ZVAL_PTR_INIT(name) auto ZVAL_ALLOC(name)
@@ -129,6 +131,25 @@
 #define STRAND_UNWRAP() cb
 #define STRAND_RESOLVE(arg) arg
 #endif // ENABLE_STRAND
+
+#if defined(ENABLE_NULL_BUFFERS) && BOOST_VERSION >= 106600
+// Null buffers are deprecated as of Boost 1.66.
+// Method `async_wait()` on sockets and stream descriptors is preferred.
+#undef ENABLE_NULL_BUFFERS
+#endif
+#ifdef ENABLE_NULL_BUFFERS
+#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
+    if (UNEXPECTED(length < 0)) { \
+        PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected."); \
+        RETURN_NULL(); \
+    }
+#else
+#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
+    if (UNEXPECTED(length <= 0)) { \
+        PHP_ASIO_ERROR(E_WARNING, "Positive integer expected."); \
+        RETURN_NULL(); \
+    }
+#endif // ENABLE_NULL_BUFFERS
 
 #define PHP_ASIO_INVOKE_CALLBACK_START(argc) \
     const auto _argc = argc; \

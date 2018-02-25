@@ -87,7 +87,7 @@ namespace Asio
         boost::system::error_code ec;
         signal_.cancel(ec);
         if (!ec)
-            PHP_ASIO_OBJ_DTOR(Signal);
+            PHP_ASIO_OBJ_DTOR();
         RETVAL_EC(ec);
     }
 

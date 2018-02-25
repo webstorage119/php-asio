@@ -29,7 +29,6 @@ namespace Asio
         using enable_if_same = std::enable_if_t<std::is_same<T1, T2>::value>;
 
 #ifdef ENABLE_COROUTINE
-
         /// Address of client who sent the last request.
         template <typename P = Protocol, typename = enable_if_same<P, udp>>
         static thread_local std::string last_addr_;
@@ -41,7 +40,6 @@ namespace Asio
         /// Socket path of client who sent the last request.
         template <typename P = Protocol, typename = enable_if_same<P, udg>>
         static thread_local std::string last_path_;
-
 #endif // ENABLE_COROUTINE
 
         /**
@@ -60,7 +58,7 @@ namespace Asio
         template <typename P = Protocol, typename =
             enable_if_same<boost::asio::basic_stream_socket<P>, typename P::socket>>
         zval* read_handler(const boost::system::error_code& error,
-            size_t length, std::vector<char>* buffer, zval* callback, zval* argument);
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
 
         /**
          * Write/send handler for socket.
@@ -69,7 +67,7 @@ namespace Asio
          * @param buffer : Write buffer
          */
         zval* write_handler(const boost::system::error_code& error,
-            size_t length, std::string* buffer, zval* callback, zval* argument);
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
 
         /**
          * Receive handler for datagram socket.
@@ -78,7 +76,7 @@ namespace Asio
          * @param buffer : Write buffer
          */
         zval* recv_handler(const boost::system::error_code& error, size_t length,
-            std::vector<char>* buffer, typename Protocol::endpoint* endpoint,
+            zend_string* buffer, typename Protocol::endpoint* endpoint,
             zval* callback, zval* argument);
 
     public:

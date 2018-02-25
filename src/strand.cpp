@@ -41,7 +41,7 @@ namespace Asio
 
     P3_METHOD(Strand, destroy)
     {
-        PHP_ASIO_OBJ_DTOR(Strand);
+        PHP_ASIO_OBJ_DTOR();
     }
 
     PHP_ASIO_CE_DEFINE(Strand);

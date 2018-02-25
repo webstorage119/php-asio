@@ -150,7 +150,7 @@ namespace Asio
         if (!ec) {
             acceptor_.close(ec);
             if (!ec)
-                PHP_ASIO_OBJ_DTOR(Acceptor);
+                PHP_ASIO_OBJ_DTOR();
         }
         RETVAL_LONG(static_cast<zend_long>(ec.value()));
     }
