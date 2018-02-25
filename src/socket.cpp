@@ -499,7 +499,7 @@ namespace Asio
         if (!ec) {
             socket_.close(ec);
             if (!ec)
-                PHP_ASIO_OBJ_DTOR(Socket);
+                PHP_ASIO_OBJ_DTOR();
         }
         RETVAL_EC(ec);
     }

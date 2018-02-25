@@ -55,7 +55,7 @@ namespace Asio
     P3_METHOD(Resolver<Protocol>, cancel)
     {
         resolver_.cancel();
-        PHP_ASIO_OBJ_DTOR(Resolver);
+        PHP_ASIO_OBJ_DTOR();
     }
 
     template <typename Protocol>

@@ -48,7 +48,7 @@ namespace Asio
         efree(send_);
         delete callback;
 #ifdef ENABLE_COROUTINE
-        PHP_ASIO_OBJ_DTOR(Future);
+        PHP_ASIO_OBJ_DTOR();
 #else
         delete this;
 #endif // ENABLE_COROUTINE
