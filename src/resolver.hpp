@@ -1,5 +1,5 @@
 /**
- * php-asio/include/resolver.hpp
+ * php-asio/resolver.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -11,10 +11,8 @@
 
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio resolver.
-     * Provides hostname resolution.
-     */
+    /// Wrapper for Boost.Asio resolver.
+    /// Provides hostname resolution.
     template <typename Protocol>
     class Resolver : public Base
     {
@@ -24,31 +22,24 @@ namespace Asio
         /// Boost.Asio resolver instance.
         typename Protocol::resolver resolver_;
 
-        /**
-         * Resolve handler.
-         * @param error : Error code
-         * @param iter : Endpoint iterator
-         */
+        /// Resolve handler.
         zval* handler(const boost::system::error_code& error,
             iterator iter, zval* callback, zval* argument);
 
     public:
-        /**
-         * Constructor.
-         * @param io_service : I/O service for current Resolver.
-         */
+        /// Constructor.
         explicit Resolver(
             boost::asio::io_service& io_service
         ) : Base(io_service), resolver_(io_service) {}
 
-        /* proto Future Resolver::resolve(string host, [string service = ""],
-         *           [callable callback], [mixed argument]);
+        /* {{{ proto Future Resolver::resolve(string host, [string service = ""],
+         *               [callable callback], [mixed argument]);
          * Initiate an asynchronous resolve against the resolver. */
         P3_METHOD_DECLARE(resolve);
         /* }}} */
 
-        /* proto void Resolver::cancel(void);
-         * Cancel resolve operation and destroy the resolver. */
+        /* {{{ proto int Resolver::cancel(void);
+         * Cancel all asynchronous operations on this resolver. */
         P3_METHOD_DECLARE(cancel);
         /* }}} */
 

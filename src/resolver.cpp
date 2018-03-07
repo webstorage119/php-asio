@@ -43,7 +43,7 @@ namespace Asio
             Z_PARAM_STR(service)
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
-            ZEND_PARSE_PARAMETERS_END();
+        ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<iterator>(boost::bind(&Resolver::handler, this, _1, _2, STRAND_UNWRAP(), args));
         resolver_.async_resolve({ ZSTR_VAL(host), service ? ZSTR_VAL(service) : "" },
@@ -55,7 +55,7 @@ namespace Asio
     P3_METHOD(Resolver<Protocol>, cancel)
     {
         resolver_.cancel();
-        PHP_ASIO_OBJ_DTOR();
+        RETVAL_LONG(0);
     }
 
     template <typename Protocol>

@@ -6,7 +6,7 @@
 
 #include "acceptor.hpp"
 #include "future.hpp"
-#include "stream_descriptor.hpp"
+#include "io.hpp"
 
 namespace Asio
 {
@@ -15,10 +15,10 @@ namespace Asio
         Socket<Protocol>* const socket, zval* callback, zval* argument)
     {
         PHP_ASIO_INVOKE_CALLBACK_START(4)
-            ZVAL_OBJ(&arguments[1], p3::toZendObject(socket));
+            ZVAL_OBJ(&arguments[1], p3::to_zend_object(socket));
             PHP_ASIO_INVOKE_CALLBACK();
         PHP_ASIO_INVOKE_CALLBACK_END();
-        CORO_RETURN(ZVAL_OBJ, p3::toZendObject(socket));
+        CORO_RETURN(ZVAL_OBJ, p3::to_zend_object(socket));
     }
 
     /* {{{ proto int TcpAcceptor::accept(bool inet6);
@@ -132,7 +132,7 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_OBJ_ALLOC(socket, Socket<Protocol>, io_service_);
         PHP_ASIO_FUTURE_INIT();
-        auto asio_socket = p3::toObject<Socket<Protocol>>(socket);
+        auto asio_socket = p3::to_object<Socket<Protocol>>(socket);
         future->on_resolve<NOARG>(boost::bind(
             &Acceptor::handler, this, _1, asio_socket, STRAND_UNWRAP(), args));
         acceptor_.async_accept(asio_socket->get_socket(), STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
@@ -140,19 +140,23 @@ namespace Asio
     }
     /* }}} */
 
-    /* proto int Acceptor::close(void);
-     * Cancel async operations and stop acceptor. */
+    /* {{{ proto int Acceptor::cancel(void);
+     * Cancel all asynchronous operations on this acceptor. */
+    template <typename Protocol>
+    P3_METHOD(Acceptor<Protocol>, cancel)
+    {
+        boost::system::error_code ec;
+        RETVAL_EC(acceptor_.cancel(ec));
+    }
+    /* }}} */
+
+    /* {{{ proto int Acceptor::close(void);
+     * Stop the acceptor. */
     template <typename Protocol>
     P3_METHOD(Acceptor<Protocol>, close)
     {
         boost::system::error_code ec;
-        acceptor_.cancel(ec);
-        if (!ec) {
-            acceptor_.close(ec);
-            if (!ec)
-                PHP_ASIO_OBJ_DTOR();
-        }
-        RETVAL_LONG(static_cast<zend_long>(ec.value()));
+        RETVAL_EC(acceptor_.close(ec));
     }
     /* }}} */
 

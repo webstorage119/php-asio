@@ -1,5 +1,5 @@
 /**
- * php-asio/include/acceptor.hpp
+ * php-asio/acceptor.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -12,29 +12,20 @@
 
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio stream socket acceptor.
-     * Provide TCP services.
-     */
+    /// Wrapper for Boost.Asio stream socket acceptor.
+    /// Provide TCP services.
     template <typename Protocol>
     class Acceptor : public Base
     {
         /// Boost.Asio acceptor instance.
         typename Protocol::acceptor acceptor_;
 
-        /**
-         * Accept handler.
-         * @param error : Error code
-         * @param socket : Socket of accepted connection
-         */
+        /// Accept handler.
         zval* handler(const boost::system::error_code& error,
-            Socket<Protocol>* const socket, zval* callback, zval* argument);
+            Socket<Protocol>* socket, zval* callback, zval* argument);
 
     public:
-        /**
-         * Constructor.
-         * @param io_service : I/O service for current Acceptor.
-         */
+        /// Constructor.
         explicit Acceptor(
             boost::asio::io_service& io_service
         ) : Base(io_service), acceptor_(io_service) {}
@@ -49,10 +40,11 @@ namespace Asio
 
         P3_METHOD_DECLARE(accept);
 
+        P3_METHOD_DECLARE(cancel);
+
         P3_METHOD_DECLARE(close);
 
         PHP_ASIO_CE_DECLARE();
-
     };
 
     using TcpAcceptor = Acceptor<tcp>;

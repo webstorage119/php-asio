@@ -1,5 +1,5 @@
 /**
- * php-asio/include/service.hpp
+ * php-asio/service.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -13,42 +13,30 @@
 #include "resolver.hpp"
 #include "socket.hpp" 
 #include "acceptor.hpp"
+#include "stream_descriptor.hpp"
 #include "strand.hpp"
 #include "php_asio.hpp"
 
-#if 0
-#include "stream_descriptor.hpp"
-#endif
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio io_service.
-     * Provide access to instantiation of I/O objects.
-     */
+    /// Wrapper for Boost.Asio io_service.
+    /// Provide access to instantiation of I/O objects.
     class Service
     {
         /// The io_service of all I/O objects in current instance.
         boost::asio::io_service io_service_;
 
     public:
-        /**
-         * Default constructor.
-         */
+        /// Default constructor.
         Service() = default;
 
-        /**
-         * Deleted copy constructor.
-         */
+        /// Deleted copy constructor.
         Service(const Service&) = delete;
 
-        /**
-         * Default destructor.
-         */
+        /// Default destructor.
         virtual ~Service() = default;
 
-        /**
-         * Deleted copy assignment operator.
-         */
+        /// Deleted copy assignment operator.
         Service& operator=(const Service&) = delete;
 
         /* {{{ proto Timer Service::addTimer(void);
@@ -99,6 +87,11 @@ namespace Asio
         /* {{{ proto UnixAcceptor Service::addUnixAcceptor(void);
          * Add a new UNIX domain socket acceptor (SOCK_STREAM). */
         P3_METHOD_DECLARE(addUnixAcceptor);
+        /* }}} */
+
+        /* {{{ proto StreamDescriptor Service::addStreamDescriptor(void);
+         * Add a new stream descriptor. */
+        P3_METHOD_DECLARE(addStreamDescriptor);
         /* }}} */
 
 #ifdef ENABLE_STRAND
@@ -166,11 +159,8 @@ namespace Asio
          * Notify all services of a fork event. (fork child) */
         P3_METHOD_DECLARE(forkChild);
 
-        /**
-         * Get io_service by reference.
-         * 
-         * Can be used when working on another extension based on Boost.Asio.
-         */
+        /// Get io_service by reference.
+        /// Can be used when working on another extension based on Boost.Asio.
         PHP_ASIO_API boost::asio::io_service& get_io_service()
         {
             return io_service_;

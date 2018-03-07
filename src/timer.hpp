@@ -1,5 +1,5 @@
 /**
- * php-asio/include/timer.hpp
+ * php-asio/timer.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -11,26 +11,18 @@
 
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio deadline timer.
-     */
+    /// Wrapper for Boost.Asio deadline timer.
     class Timer : public Base
     {
         /// Boost.Asio timer instance.
         boost::asio::deadline_timer timer_;
 
-        /**
-         * Handler for timer callback.
-         * @param error : error code
-         */
+        /// Handler for timer callback.
         zval* handler(const boost::system::error_code& error,
             zval* callback, zval* argument);
 
     public:
-        /**
-         * Timer constructor.
-         * @param io_service : I/O service for current timer
-         */
+        /// Constructor.
         explicit Timer(
             boost::asio::io_service& io_service
         ) : Base(io_service), timer_(io_service) {}

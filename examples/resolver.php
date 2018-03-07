@@ -12,6 +12,7 @@ $service->post(function () use ($service) {
     if ($ec = Asio\Service::lastError()) {
         echo 'Resolve failed. ', posix_strerror($ec), PHP_EOL;
         $resolver->cancel();
+        $resolver->destroy();
         return;
     }
     foreach ($data as $addr)

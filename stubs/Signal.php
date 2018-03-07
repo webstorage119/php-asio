@@ -17,7 +17,7 @@ namespace Asio;
  *
  * @package Asio
  */
-final class Signal
+final class Signal implements IoObject
 {
     /**
      * This class can only be instantiated using `Service::addSignal()`.
@@ -57,9 +57,12 @@ final class Signal
     function clear() {}
 
     /**
-     * Cancel current signal set.
-     *
-     * @return int : Error code
+     * {@inheritdoc}
      */
     function cancel() {}
+
+    /**
+     * {@inheritdoc}
+     */
+    function destroy() {}
 }

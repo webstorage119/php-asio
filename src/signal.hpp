@@ -1,5 +1,5 @@
 /**
- * php-asio/include/signal.hpp
+ * php-asio/signal.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -11,28 +11,19 @@
 
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio signal_set.
-     * Provides functionalities for signal handling.
-     */
+    /// Wrapper for Boost.Asio signal_set.
+    /// Provides functionalities for signal handling.
     class Signal : public Base
     {
         /// Boost.Asio signal_set instance.
         boost::asio::signal_set signal_;
 
-        /**
-         * Signal handler callback.
-         * @param error : Error code
-         * @param signal : Signal number
-         */
+        /// Signal handler callback.
         zval* handler(const boost::system::error_code& error,
             int signal, zval* callback, zval* argument);
 
     public:
-        /**
-         * Constructor.
-         * @param io_service : I/O service for current signal set
-         */
+        /// Constructor.
         explicit Signal(
             boost::asio::io_service& io_service
         ) : Base(io_service), signal_(io_service) {}

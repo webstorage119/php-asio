@@ -16,6 +16,7 @@ $timer->wait(
         echo $arg, PHP_EOL;
         if (++$counter >= 5) {
             $timer->cancel();
+            $timer->destroy();
             return;
         }
         // Using timestamp.

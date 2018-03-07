@@ -1,5 +1,5 @@
 /**
- * php-asio/include/future.hpp
+ * php-asio/future.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -13,11 +13,9 @@
 
 namespace Asio
 {
-    /**
-     * Class Future.
-     * When an asynchronous operation completes, its Future will be resolved.
-     * And the corresponding coroutine will resume (if Future was yielded by a Generator).
-     */
+    /// Class Future.
+    /// When an asynchronous operation completes, its Future will be resolved.
+    /// And the corresponding coroutine will resume (if Future was yielded by a Generator).
     class Future
     {
         /// Handler callback of the async operation.
@@ -42,51 +40,35 @@ namespace Asio
         boost::asio::strand* strand_ = nullptr;
 #endif // ENABLE_STRAND
 
-        /**
-         * Make default constructor private to avoid user instantiation.
-         */
+        /// Make default constructor private to avoid user instantiation.
         explicit Future() = default;
 
     public:
-        /**
-         * Create a new Future instance.
-         */
+        /// Create a new Future instance.
         static Future* add(
 #ifdef ENABLE_COROUTINE
             zend_object*& obj
 #endif // ENABLE_COROUTINE
         );
 
-        /**
-         * Deleted copy constructor.
-         */
+        /// Deleted copy constructor.
         Future(const Future&) = delete;
 
-        /**
-         * Deleted copy assignment operator.
-         */
+        /// Deleted copy assignment operator.
         Future& operator=(const Future&) = delete;
 
-        /**
-         * Set future resolver callback.
-         */
+        /// Set future resolver callback.
         template <typename T>
         void on_resolve(const ASYNC_CALLBACK(T)&& callback);
 
-        /**
-         * Resolve the Future upon operation completion.
-         * @param ec : Error code
-         * @param arg : Dependent argument
-         */
+        /// Resolve the Future upon operation completion.
         template <typename T>
         void resolve(const boost::system::error_code& ec, T arg);
 
 #ifdef ENABLE_STRAND
         zval* strand(zval* callable);
 
-        /**
-         * Get the pointer to the strand which wrapped this Future.
-         */
+        /// Get the pointer to the strand which wrapped this Future.
         boost::asio::strand* get_strand() const
         {
             return strand_;
@@ -94,14 +76,10 @@ namespace Asio
 #endif // ENABLE_STRAND
 
 #ifdef ENABLE_COROUTINE
-        /**
-         * Attempt to start/resume a coroutine with a PHP Generator.
-         */
+        /// Attempt to start/resume a coroutine with a PHP Generator.
         static void coroutine(zval* generator);
 
-        /**
-         * Get last error emitted by handler callback within yielded Future.
-         */
+        /// Get last error emitted by handler callback within yielded Future.
         static P3_METHOD_DECLARE(lastError);
 
         PHP_ASIO_CE_DECLARE();

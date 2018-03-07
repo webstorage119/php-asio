@@ -13,8 +13,8 @@ namespace Asio;
 /**
  * Class Future
  *
- * When an asynchronous operation completes, its Future will be resolved.
- * And the corresponding coroutine will resume (if Future was yielded by a Generator).
+ * When an asynchronous operation completes, its Future will be resolved,
+ * resuming the corresponding coroutine (if Future was yielded by a Generator).
  *
  * @package Asio
  */

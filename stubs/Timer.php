@@ -15,7 +15,7 @@ namespace Asio;
  *
  * @package Asio
  */
-final class Timer
+final class Timer implements IoObject
 {
     /**
      * This class can only be instantiated using "Service::addTimer()".
@@ -41,10 +41,12 @@ final class Timer
     function wait(callable $callback, $argument = null) {}
 
     /**
-     * Cancel the timer.
-     * All async operations will resolve immediately with error.
-     *
-     * @return int : Error code
+     * {@inheritdoc}
      */
     function cancel() {}
+
+    /**
+     * {@inheritdoc}
+     */
+    function destroy() {}
 }

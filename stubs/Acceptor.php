@@ -15,7 +15,7 @@ namespace Asio;
  *
  * @package Asio
  */
-interface Acceptor
+interface Acceptor extends IoObject
 {
     /**
      * Put the acceptor into the state where it may accept new connections.
@@ -36,7 +36,7 @@ interface Acceptor
     function accept(callable $callback, $argument = null);
 
     /**
-     * Cancel async operations and stop acceptor.
+     * Close the acceptor.
      *
      * @return int : Error code
      */

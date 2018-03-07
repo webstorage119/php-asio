@@ -6,8 +6,7 @@
 
 #include "socket.hpp"
 #include "future.hpp"
-#include "stream_descriptor.hpp"
-#include "buffer.hpp"
+#include "io.hpp"
 
 namespace Asio
 {
@@ -215,84 +214,13 @@ namespace Asio
     template <typename Protocol> template <typename, typename>
     P3_METHOD(Socket<Protocol>, read)
     {
-        zend_long length;
-        zend_bool read_some = 1;
-        zval* callback = nullptr;
-        zval* argument = nullptr;
-        ZEND_PARSE_PARAMETERS_START(1, 4)
-            Z_PARAM_LONG(length)
-            Z_PARAM_OPTIONAL
-            Z_PARAM_BOOL(read_some)
-            Z_PARAM_ZVAL(callback)
-            Z_PARAM_ZVAL(argument)
-        ZEND_PARSE_PARAMETERS_END();
-        PHP_ASIO_BUFFER_LEN_VALIDATE();
-        auto buffer_container = 
-#ifdef ENABLE_NULL_BUFFERS
-            length == 0 ? ZSTR_EMPTY_ALLOC() :
-#endif //ENABLE_NULL_BUFFERS
-            zend_string_alloc(static_cast<size_t>(length), 0);
-        PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(&Socket::read_handler,
-            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
-#ifdef ENABLE_NULL_BUFFERS
-        if (length == 0)
-            if (read_some)
-                socket_.async_read_some(boost::asio::null_buffers(),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-            else
-                async_read(socket_, boost::asio::null_buffers(),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-        else
-#endif //ENABLE_NULL_BUFFERS
-            if (read_some)
-                socket_.async_read_some(mutable_buffer(buffer_container),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-            else
-                async_read(socket_, mutable_buffer(buffer_container),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-        FUTURE_RETURN();
+        PHP_ASIO_READ(Socket, socket_);
     }
 
     template <typename Protocol> template <typename, typename>
     P3_METHOD(Socket<Protocol>, write)
     {
-        zend_string* data;
-        zend_bool write_some = 0;
-        zval* callback = nullptr;
-        zval* argument = nullptr;
-        ZEND_PARSE_PARAMETERS_START(1, 4)
-            Z_PARAM_STR(data)
-            Z_PARAM_OPTIONAL
-            Z_PARAM_BOOL(write_some)
-            Z_PARAM_ZVAL(callback)
-            Z_PARAM_ZVAL(argument)
-        ZEND_PARSE_PARAMETERS_END();
-        auto buffer_container =
-#ifdef ENABLE_NULL_BUFFERS
-            ZSTR_LEN(data) == 0 ? nullptr :
-#endif //ENABLE_NULL_BUFFERS
-            zend_string_copy(data);
-        PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(&Socket::write_handler,
-            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
-#ifdef ENABLE_NULL_BUFFERS
-        if (ZSTR_LEN(data) == 0)
-            if (write_some)
-                socket_.async_write_some(boost::asio::null_buffers(),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-            else
-                async_write(socket_, boost::asio::null_buffers(),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-        else
-#endif //ENABLE_NULL_BUFFERS
-            if (write_some)
-                socket_.async_write_some(mutable_buffer(buffer_container),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-            else
-                async_write(socket_, mutable_buffer(buffer_container),
-                    STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t)));
-        FUTURE_RETURN();
+        PHP_ASIO_WRITE(Socket, socket_);
     }
 
     template <typename Protocol> template <typename, typename>
@@ -492,16 +420,17 @@ namespace Asio
     }
 
     template <typename Protocol>
+    P3_METHOD(Socket<Protocol>, cancel)
+    {
+        boost::system::error_code ec;
+        RETVAL_EC(socket_.cancel(ec));
+    }
+
+    template <typename Protocol>
     P3_METHOD(Socket<Protocol>, close)
     {
         boost::system::error_code ec;
-        socket_.cancel(ec);
-        if (!ec) {
-            socket_.close(ec);
-            if (!ec)
-                PHP_ASIO_OBJ_DTOR();
-        }
-        RETVAL_EC(ec);
+        RETVAL_EC(socket_.close(ec));
     }
 
     template <typename Protocol>

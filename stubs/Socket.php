@@ -15,7 +15,7 @@ namespace Asio;
  *
  * @package Asio
  */
-interface Socket
+interface Socket extends IoObject
 {
     /**
      * Determine the number of bytes available for reading.

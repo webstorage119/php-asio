@@ -18,13 +18,19 @@ Bug reports and pull requests are welcome.
 ### 2.1 Requirements
 
 * PHP Version >= 7.0
+
 * The [Boost](http://www.boost.org/) C++ libraries (Version >= 1.55.0)
+
 * C++ compiler which supports C++14
 
 ### 2.2 Notes
 
 * If you don't need coroutines, you can `--disable-asio-coroutine` for better performance.
+
 * If you are writing multi-threaded programs, you can `--enable-asio-strand` for `Strand` support.
+
+* If you are using php-asio with other libraries which performs I/O operations themselves, you can `--enable-null-buffers` for reactor-style operations.
+
 * Windows is not yet supported.
 
 ## 3. Documentation
@@ -39,7 +45,9 @@ A detailed documentation will be coming soon once the first stable version is re
 
 * Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
 
-* Finish `StreamDescriptor`. (Priority: **medium**)
+* Sanity tests and examples for `Strand` and `StreamDescriptor`. (Priority: **Medium**)
+
+* Add support for serial ports. (Priority: **low**)
 
 * Add socket `onReadable()` `onWritable()` `onError()` methods (with Boost version 1.66 and above). (Priority: **low**)
 
