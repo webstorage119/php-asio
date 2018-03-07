@@ -34,4 +34,9 @@ final class TcpResolver implements Resolver
      * {@inheritdoc}
      */
     function cancel() {}
+
+    /**
+     * {@inheritdoc}
+     */
+    function destroy() {}
 }

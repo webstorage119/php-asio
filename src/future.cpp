@@ -14,12 +14,12 @@ namespace Asio
 #ifdef ENABLE_COROUTINE
         zend_object*& obj)
     {
-        obj = p3::allocObject<Future>(class_entry, [](Future* ptr)
+        obj = p3::alloc_object<Future>(class_entry, [](Future* ptr)
         {
             new(ptr) Future;
         });
         GC_ADDREF(obj);
-        return p3::toObject<Future>(obj);
+        return p3::to_object<Future>(obj);
 #else
         ) {
         return new Future;
@@ -48,7 +48,7 @@ namespace Asio
         efree(send_);
         delete callback;
 #ifdef ENABLE_COROUTINE
-        PHP_ASIO_OBJ_DTOR();
+        PHP_ASIO_OBJ_DTOR(this);
 #else
         delete this;
 #endif // ENABLE_COROUTINE
@@ -59,7 +59,7 @@ namespace Asio
     {
         if (callable && Z_TYPE_P(callable) == IS_OBJECT &&
             instanceof_function(Z_OBJCE_P(callable), WrappedHandler::class_entry)) {
-            auto wrapped_hander = p3::toObject<WrappedHandler>(callable);
+            auto wrapped_hander = p3::to_object<WrappedHandler>(callable);
             strand_ = &wrapped_hander->strand_;
             return wrapped_hander->callback_;
         }
@@ -73,9 +73,9 @@ namespace Asio
         if (Z_TYPE_P(value) == IS_OBJECT && instanceof_function(Z_OBJCE_P(value), zend_ce_generator)) {
             const auto generator = reinterpret_cast<zend_generator*>(Z_OBJ_P(value));
             if (generator_valid(generator)) {
-                auto ret = generator_current(generator);
+                const auto ret = generator_current(generator);
                 if (ret && instanceof_function(Z_OBJCE_P(ret), class_entry)) {
-                    const auto future = p3::toObject<Future>(ret);
+                    const auto future = p3::to_object<Future>(ret);
                     future->generator_ = value;
                     future->yield_ = true;
                     return;

@@ -1,5 +1,5 @@
 /**
- * php-asio/include/common.hpp
+ * php-asio/common.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -65,13 +65,12 @@
 #endif
 
 #define PHP_ASIO_OBJ_ALLOC(obj, type, arg) \
-    auto obj = p3::allocObject<type>(type::class_entry, [this](type* ptr) { \
+    auto obj = p3::alloc_object<type>(type::class_entry, [this](type* ptr) { \
         new(ptr) type(arg); \
     }); \
     GC_ADDREF(obj)
 
-#define PHP_ASIO_OBJ_DTOR() \
-    GC_DELREF(p3::toZendObject(this))
+#define PHP_ASIO_OBJ_DTOR(obj) GC_DELREF(p3::to_zend_object(obj))
 
 #define ZVAL_ALLOC(name) name = static_cast<zval*>(emalloc(sizeof(zval)))
 #define ZVAL_PTR_INIT(name) auto ZVAL_ALLOC(name)
@@ -155,7 +154,7 @@
     const auto _argc = argc; \
     if (callback && zend_is_callable(callback, 0, nullptr)) { \
         zval arguments[_argc] = {{{ 0 }}}; \
-        ZVAL_OBJ(&arguments[0], p3::toZendObject(this));
+        ZVAL_OBJ(&arguments[0], p3::to_zend_object(this));
 
 #define PHP_ASIO_INVOKE_CALLBACK() \
         ZVAL_LONG(&arguments[_argc - 2], static_cast<zend_long>(error.value())); \
@@ -191,32 +190,6 @@
         ZVAL_COPY(args, argument); \
     } \
     FUTURE_INIT()
-
-// Note: same as above.
-#define PHP_ASIO_DISPATCH_CALLBACK(meth) \
-    zval* callback; \
-    zval* argument = nullptr; \
-    ZEND_PARSE_PARAMETERS_START(1, 2) \
-        Z_PARAM_ZVAL(callback) \
-        Z_PARAM_OPTIONAL \
-        Z_PARAM_ZVAL(argument) \
-    ZEND_PARSE_PARAMETERS_END(); \
-    ZVAL_PTR_INIT(cb); \
-    ZVAL_COPY(cb, callback); \
-    ZVAL_PTR_INIT(args); \
-    if (argument) \
-        ZVAL_COPY(args, argument); \
-    else \
-        ZVAL_NULL(args); \
-    meth([cb, args]() { \
-        INIT_RETVAL(); \
-        call_user_function(CG(function_table), nullptr, cb, PASS_RETVAL, 1, args); \
-        CORO_REGISTER(retval); \
-        zval_ptr_dtor(cb); \
-        zval_ptr_dtor(args); \
-        efree(cb); \
-        efree(args); \
-    })
 
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;

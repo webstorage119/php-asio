@@ -1,10 +1,15 @@
+/**
+ * php-asio/php_asio.hpp
+ *
+ * @author CismonX<admin@cismon.net>
+ */
 
 #pragma once
 
 extern zend_module_entry asio_module_entry;
 #define phpext_asio_ptr &asio_module_entry
 
-#define PHP_ASIO_VERSION "0.1.2"
+#define PHP_ASIO_VERSION "0.1.3"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define PHP_ASIO_API __attribute__ ((visibility("default")))

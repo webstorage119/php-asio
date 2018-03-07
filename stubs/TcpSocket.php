@@ -82,5 +82,15 @@ final class TcpSocket implements StreamSocket, InetSocket
     /**
      * {@inheritdoc}
      */
+    function cancel() {}
+
+    /**
+     * {@inheritdoc}
+     */
     function close() {}
+
+    /**
+     * {@inheritdoc}
+     */
+    function destroy() {}
 }

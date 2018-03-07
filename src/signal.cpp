@@ -78,17 +78,13 @@ namespace Asio
     P3_METHOD(Signal, clear)
     {
         boost::system::error_code ec;
-        signal_.clear(ec);
-        RETVAL_EC(ec);
+        RETVAL_EC(signal_.clear(ec));
     }
 
     P3_METHOD(Signal, cancel)
     {
         boost::system::error_code ec;
-        signal_.cancel(ec);
-        if (!ec)
-            PHP_ASIO_OBJ_DTOR();
-        RETVAL_EC(ec);
+        RETVAL_EC(signal_.cancel(ec));
     }
 
     PHP_ASIO_CE_DEFINE(Signal);

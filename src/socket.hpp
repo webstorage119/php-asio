@@ -1,5 +1,5 @@
 /**
- * php-asio/include/socket.hpp
+ * php-asio/socket.hpp
  * 
  * @author CismonX<admin@cismon.net>
  */
@@ -16,9 +16,7 @@
 
 namespace Asio
 {
-    /**
-     * Wrapper for Boost.Asio socket.
-     */
+    /// Wrapper for Boost.Asio socket.
     template <typename Protocol>
     class Socket : public Base
     {
@@ -49,48 +47,28 @@ namespace Asio
         zval* connect_handler(const boost::system::error_code& error,
             zval* callback, zval* argument);
 
-        /**
-         * Read handler for stream socket.
-         * @param error : Error code
-         * @param length : Bytes transferred
-         * @param buffer : Read buffer
-         */
+        /// Read handler for stream socket.
         template <typename P = Protocol, typename =
             enable_if_same<boost::asio::basic_stream_socket<P>, typename P::socket>>
         zval* read_handler(const boost::system::error_code& error,
             size_t length, zend_string* buffer, zval* callback, zval* argument);
 
-        /**
-         * Write/send handler for socket.
-         * @param error : Error code
-         * @param length : Bytes transferred
-         * @param buffer : Write buffer
-         */
+        /// Write/send handler for socket.
         zval* write_handler(const boost::system::error_code& error,
             size_t length, zend_string* buffer, zval* callback, zval* argument);
 
-        /**
-         * Receive handler for datagram socket.
-         * @param error : Error code
-         * @param length : Bytes transferred
-         * @param buffer : Write buffer
-         */
+        /// Receive handler for datagram socket.
         zval* recv_handler(const boost::system::error_code& error, size_t length,
             zend_string* buffer, typename Protocol::endpoint* endpoint,
             zval* callback, zval* argument);
 
     public:
-        /**
-         * Constructor.
-         * @param io_service : I/O service of current socket.
-         */
+        /// Constructor.
         explicit Socket(
             boost::asio::io_service& io_service
         ) : Base(io_service), socket_(io_service) {}
 
-        /**
-         * Get reference of socket.
-         */
+        /// Get reference of socket.
         typename Protocol::socket& get_socket()
         {
             return socket_;
@@ -193,8 +171,13 @@ namespace Asio
         P3_METHOD_DECLARE(atMark) const;
         /* }}} */
 
+        /* {{{ proto int Socket::cancel(void);
+         * Cancel all asynchronous operations on the socket. */
+        P3_METHOD_DECLARE(cancel);
+        /* }}} */
+
         /* {{{ proto int Socket::close(void);
-         * Cancel async operations and close socket. */
+         * Close the socket. */
         P3_METHOD_DECLARE(close);
         /* }}} */
 

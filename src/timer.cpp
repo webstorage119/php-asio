@@ -57,8 +57,6 @@ namespace Asio
     {
         boost::system::error_code ec;
         timer_.cancel(ec);
-        if (!ec)
-            PHP_ASIO_OBJ_DTOR();
         RETVAL_EC(ec);
     }
 

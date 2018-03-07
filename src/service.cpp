@@ -1,3 +1,8 @@
+/**
+ * php-asio/service.cpp
+ *
+ * @author CismonX<admin@cismon.net>
+ */
 
 #include "service.hpp"
 
@@ -83,6 +88,12 @@ namespace Asio
     {
         PHP_ASIO_OBJ_ALLOC(acceptor, UnixAcceptor, io_service_);
         RETVAL_OBJ(acceptor);
+    }
+
+    P3_METHOD(Service, addStreamDescriptor)
+    {
+        PHP_ASIO_OBJ_ALLOC(stream_descriptor, StreamDescriptor, io_service_);
+        RETVAL_OBJ(stream_descriptor);
     }
 
 #ifdef ENABLE_STRAND

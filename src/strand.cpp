@@ -31,17 +31,10 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_START(1, 1)
             Z_PARAM_ZVAL(callable)
         ZEND_PARSE_PARAMETERS_END();
-        auto obj = p3::allocObject<WrappedHandler>(
-            WrappedHandler::class_entry, [this, callable](WrappedHandler* ptr) {
+        RETVAL_OBJ(p3::alloc_object<WrappedHandler>(WrappedHandler::class_entry,
+            [this, callable](WrappedHandler* ptr) {
                 new(ptr) WrappedHandler(strand_, callable);
-            });
-        GC_ADDREF(obj);
-        RETVAL_OBJ(obj);
-    }
-
-    P3_METHOD(Strand, destroy)
-    {
-        PHP_ASIO_OBJ_DTOR();
+            }));
     }
 
     PHP_ASIO_CE_DEFINE(Strand);

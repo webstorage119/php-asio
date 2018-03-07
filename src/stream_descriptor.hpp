@@ -1,5 +1,5 @@
 /**
- * php-asio/include/stream_descriptor.hpp
+ * php-asio/stream_descriptor.hpp
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -9,54 +9,64 @@
 #include "common.hpp"
 #include "base.hpp"
 
-#define PHP_ASIO_INET_ASSIGN(obj, p) \
-    zend_bool inet6; \
-    zval* fd; \
-    ZEND_PARSE_PARAMETERS_START(2, 2) \
-        Z_PARAM_BOOL(inet6) \
-        Z_PARAM_ZVAL(fd) \
-    ZEND_PARSE_PARAMETERS_END(); \
-    boost::system::error_code ec; \
-    const auto protocol = inet6 ? p::v6() : p::v4(); \
-    if (UNEXPECTED(Z_TYPE_P(fd) == IS_LONG)) \
-        obj.assign(protocol, Z_LVAL_P(fd), ec); \
-    else \
-        obj.assign(protocol, StreamDescriptor::resource_to_fd(fd), ec); \
-    RETVAL_EC(ec)
-
-#define PHP_ASIO_LOCAL_ASSIGN(obj, p) \
-    zval* fd; \
-    ZEND_PARSE_PARAMETERS_START(1, 1) \
-        Z_PARAM_ZVAL(fd) \
-    ZEND_PARSE_PARAMETERS_END(); \
-    boost::system::error_code ec; \
-    if (UNEXPECTED(Z_TYPE_P(fd) == IS_LONG)) \
-        obj.assign(p(), Z_LVAL_P(fd), ec); \
-    else \
-        obj.assign(p(), StreamDescriptor::resource_to_fd(fd), ec); \
-    RETVAL_EC(ec)
-
 namespace Asio
 {
+    /// Wrapper for Boost.Asio stream descriptor.
     class StreamDescriptor : public Base
     {
         /// Boost.Asio stream descriptor instance.
         boost::asio::posix::stream_descriptor stream_descriptor_;
 
+        /// Read handler for stream descriptor.
+        zval* read_handler(const boost::system::error_code& error,
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
+
+        /// Write handler for socket.
+        zval* write_handler(const boost::system::error_code& error,
+            size_t length, zend_string* buffer, zval* callback, zval* argument);
+
     public:
-        /**
-         * Constructor.
-         * @param io_service : I/O service of current stream_descriptor.
-         */
+        /// Constructor.
         explicit StreamDescriptor(
             boost::asio::io_service& io_service
         ) : Base(io_service), stream_descriptor_(io_service) {}
 
-        /**
-         * Extract a valid poll fd from a PHP resource.
-         * @param resource : Resource containing a valid file descriptor
-         */
-        static int resource_to_fd(zval* resource);
+        /* {{{ proto int StreamDescriptor::bind(int|resource fd);
+         * Opens the descriptor to hold an existing native descriptor. */
+        P3_METHOD_DECLARE(assign);
+        /* }}} */
+
+        /* {{{ proto bool StreamDescriptor::isOpen(void);
+         * Determine whether the descriptor is open. */
+        P3_METHOD_DECLARE(isOpen);
+        /* }}} */
+
+        /* {{{ proto Future StreamDescriptor::read(int length, [bool read_some = true],
+         *               [callable callback], [mixed argument]);
+         * Read asynchronously from stream descriptor. */
+        P3_METHOD_DECLARE(read);
+        /* }}} */
+
+        /* {{{ proto Future StreamDescriptor::write(string data, [bool write_some = false],
+         *               [callable callback], [mixed argument]);
+         * Write asynchronously to stream socket. */
+        P3_METHOD_DECLARE(write);
+        /* }}} */
+
+        /* {{{ proto void StreamDescriptor::release(void);
+         * Release ownership of the native descriptor implementation. */
+        P3_METHOD_DECLARE(release);
+        /* }}} */
+
+        /* {{{ proto int StreamDescriptor::cancel(void);
+         * Cancel all asynchronous operations on the descriptor. */
+        P3_METHOD_DECLARE(cancel);
+        /* }}} */
+
+        /* {{{ proto int StreamDescriptor::close(void);
+         * Close the descriptor. */
+        P3_METHOD_DECLARE(close);
+        /* }}} */
 
         PHP_ASIO_CE_DECLARE();
     };

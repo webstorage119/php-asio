@@ -15,11 +15,13 @@ $service->post(function () use ($service) {
             if ($ec) {
                 echo 'Receive failed. ', posix_strerror($ec), PHP_EOL;
                 $socket->close();
+                $socket->destroy();
                 return;
             }
             echo "Remote $remote_path sent \"$data\".", PHP_EOL;
             yield $socket->sendTo('bye', $remote_path);
             $socket->close();
+            $socket->destroy();
         });
     $socket = $service->addUdgSocket();
     $socket->open();
@@ -29,5 +31,6 @@ $service->post(function () use ($service) {
     $data = yield $socket->recvFrom(100);
     echo "Server responded with \"", $data, '".', PHP_EOL;
     $socket->close();
+    $socket->destroy();
 });
 $service->run();

@@ -1,3 +1,8 @@
+/**
+ * php-asio/php_asio.cpp
+ *
+ * @author CismonX<admin@cismon.net>
+ */
 
 #include <php.h>
 #include <ext/standard/info.h>
@@ -158,6 +163,10 @@ ZEND_BEGIN_ARG_INFO(acceptor_accept_arginfo, 0)
     ZEND_ARG_INFO(0, argument)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO(stream_descriptor_assign_arginfo, 0)
+    ZEND_ARG_INFO(0, native_handle)
+ZEND_END_ARG_INFO()
+
 /* }}} */
 
 /* {{{ function_entry */
@@ -173,6 +182,7 @@ static zend_function_entry service_methods[] = {
     P3_ME_D(Asio::Service, addUdgSocket, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Service, addTcpAcceptor, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Service, addUnixAcceptor, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::Service, addStreamDescriptor, nullptr, ZEND_ACC_PUBLIC)
 #ifdef ENABLE_STRAND
     P3_ME_D(Asio::Service, addStrand, nullptr, ZEND_ACC_PUBLIC)
 #endif // ENABLE_STRAND
@@ -200,7 +210,7 @@ static zend_function_entry strand_methods[] = {
     P3_ME_D(Asio::Strand, post, strand_dispatch_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Strand, runningInThisThread, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Strand, wrap, strand_wrap_arginfo, ZEND_ACC_PUBLIC)
-    P3_ME_D(Asio::Strand, destroy, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::Strand, destroy, destroy<Asio::Strand>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -210,10 +220,17 @@ static zend_function_entry wrapped_handler_methods[] = {
 };
 #endif // ENABLE_STRAND
 
+static zend_function_entry io_object_method[] = {
+    P3_ABSTRACT_ME(cancel, nullptr)
+    P3_ABSTRACT_ME(destroy, nullptr)
+    PHP_FE_END
+};
+
 static zend_function_entry timer_methods[] = {
     P3_ME_D(Asio::Timer, expire, timer_expire_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Timer, wait, timer_wait_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Timer, cancel, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::Timer, destroy, destroy<Asio::Timer>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -223,6 +240,7 @@ static zend_function_entry signal_methods[] = {
     P3_ME_D(Asio::Signal, wait, signal_wait_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Signal, clear, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::Signal, cancel, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::Signal, destroy, destroy<Asio::Signal>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -235,12 +253,14 @@ static zend_function_entry resolver_methods[] = {
 static zend_function_entry tcp_resolver_methods[] = {
     P3_ME_D(Asio::TcpResolver, resolve, resolver_resolve_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpResolver, cancel, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::TcpResolver, destroy<Asio::TcpResolver>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
 static zend_function_entry udp_resolver_methods[] = {
     P3_ME_D(Asio::UdpResolver, resolve, resolver_resolve_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdpResolver, cancel, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::UdpResolver, destroy, destroy<Asio::UdpResolver>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -290,7 +310,9 @@ static zend_function_entry tcp_socket_methods[] = {
     P3_ME_D(Asio::TcpSocket, remotePort, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpSocket, available, socket_available_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpSocket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::TcpSocket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpSocket, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::TcpSocket, destroy, destroy<Asio::TcpSocket>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -304,7 +326,9 @@ static zend_function_entry udp_socket_methods[] = {
     P3_ME_D(Asio::UdpSocket, remotePort, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdpSocket, available, socket_available_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdpSocket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::UdpSocket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdpSocket, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::UdpSocket, destroy, destroy<Asio::UdpSocket>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -318,7 +342,9 @@ static zend_function_entry unix_socket_methods[] = {
     P3_ME_D(Asio::UnixSocket, remotePath, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixSocket, available, socket_available_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixSocket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::UnixSocket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixSocket, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::UnixSocket, destroy, destroy<Asio::UnixSocket>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -331,7 +357,9 @@ static zend_function_entry udg_socket_methods[] = {
     P3_ME_D(Asio::UdgSocket, remotePath, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdgSocket, available, socket_available_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdgSocket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::UdgSocket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UdgSocket, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::UdgSocket, destroy, destroy<Asio::UdgSocket>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -348,7 +376,9 @@ static zend_function_entry tcp_acceptor_methods[] = {
     P3_ME_D(Asio::TcpAcceptor, bind, inet_socket_bind_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpAcceptor, listen, acceptor_listen_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpAcceptor, accept, acceptor_accept_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::TcpAcceptor, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::TcpAcceptor, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::TcpAcceptor, destroy, destroy<Asio::TcpAcceptor>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -358,55 +388,92 @@ static zend_function_entry unix_acceptor_methods[] = {
     P3_ME_D(Asio::UnixAcceptor, bind, local_socket_bind_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixAcceptor, listen, acceptor_listen_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixAcceptor, accept, acceptor_accept_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::UnixAcceptor, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(Asio::UnixAcceptor, close, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::UnixAcceptor, destroy, destroy<Asio::UnixAcceptor>, nullptr, ZEND_ACC_PUBLIC)
+    PHP_FE_END
+};
+
+static zend_function_entry stream_descriptor_methods[] = {
+    P3_ME_D(Asio::StreamDescriptor, assign, stream_descriptor_assign_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::StreamDescriptor, isOpen, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::StreamDescriptor, read, stream_socket_read_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::StreamDescriptor, write, stream_socket_write_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::StreamDescriptor, release, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME_D(Asio::StreamDescriptor, cancel, nullptr, ZEND_ACC_PUBLIC)
+    P3_ME(Asio::StreamDescriptor, destroy, destroy<Asio::StreamDescriptor>, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
 /* }}} */
 
 /* {{{ interfaces class_entry */
-auto resolver_ce = p3::initClassEntry<void>("Asio\\Resolver", resolver_methods);
-auto socket_ce = p3::initClassEntry<void>("Asio\\Socket", socket_methods);
-auto inet_socket_ce = p3::initClassEntry<void>("Asio\\InetSocket", inet_socket_methods);
-auto local_socket_ce = p3::initClassEntry<void>("Asio\\LocalSocket", local_socket_methods);
-auto stream_socket_ce = p3::initClassEntry<void>("Asio\\StreamSocket", stream_socket_methods);
-auto datagram_socket_ce = p3::initClassEntry<void>("Asio\\DatagramSocket", datagram_socket_methods);
-auto acceptor_ce = p3::initClassEntry<void>("Asio\\Acceptor", acceptor_methods);
+
+auto io_object_ce = p3::init_class_entry<void>("Asio\\IoObject", io_object_method);
+auto resolver_ce = p3::init_class_entry<void>("Asio\\Resolver", resolver_methods);
+auto socket_ce = p3::init_class_entry<void>("Asio\\Socket", socket_methods);
+auto inet_socket_ce = p3::init_class_entry<void>("Asio\\InetSocket", inet_socket_methods);
+auto local_socket_ce = p3::init_class_entry<void>("Asio\\LocalSocket", local_socket_methods);
+auto stream_socket_ce = p3::init_class_entry<void>("Asio\\StreamSocket", stream_socket_methods);
+auto datagram_socket_ce = p3::init_class_entry<void>("Asio\\DatagramSocket", datagram_socket_methods);
+auto acceptor_ce = p3::init_class_entry<void>("Asio\\Acceptor", acceptor_methods);
+
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(asio)
 {
+    socket_ce->parent = io_object_ce;
+    resolver_ce->parent = io_object_ce;
+    acceptor_ce->parent = io_object_ce;
     inet_socket_ce->parent = socket_ce;
     local_socket_ce->parent = socket_ce;
     stream_socket_ce->parent = socket_ce;
     datagram_socket_ce->parent = socket_ce;
-    p3::initClassEntry<Asio::Service>("Asio\\Service", service_methods);
+    p3::init_class_entry<Asio::Service>("Asio\\Service", service_methods);
 #ifdef ENABLE_COROUTINE
-    p3::initClassEntry<Asio::Future>("Asio\\Future", nullptr);
+    auto ce = p3::init_class_entry<Asio::Future>("Asio\\Future", nullptr);
+    ce->ce_flags |= ZEND_ACC_FINAL;
 #endif // ENABLE_COROUTINE
 #ifdef ENABLE_STRAND
-    p3::initClassEntry<Asio::Strand>("Asio\\Strand", strand_methods);
-    p3::initClassEntry<Asio::WrappedHandler>("Asio\\WrappedHandler", wrapped_handler_methods);
+    ce = p3::init_class_entry<Asio::Strand>("Asio\\Strand", strand_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::WrappedHandler>("Asio\\WrappedHandler", wrapped_handler_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
 #endif // ENABLE_STRAND
-    p3::initClassEntry<Asio::Timer>("Asio\\Timer", timer_methods);
-    p3::initClassEntry<Asio::Signal>("Asio\\Signal", signal_methods);
-    auto ce = p3::initClassEntry<Asio::TcpResolver>("Asio\\TcpResolver", tcp_resolver_methods);
+    ce = p3::init_class_entry<Asio::Timer>("Asio\\Timer", timer_methods);
+    zend_class_implements(ce, 1, io_object_ce);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::Signal>("Asio\\Signal", signal_methods);
+    zend_class_implements(ce, 1, io_object_ce);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::TcpResolver>("Asio\\TcpResolver", tcp_resolver_methods);
     zend_class_implements(ce, 1, resolver_ce);
-    ce = p3::initClassEntry<Asio::UdpResolver>("Asio\\UdpResolver", udp_resolver_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::UdpResolver>("Asio\\UdpResolver", udp_resolver_methods);
     zend_class_implements(ce, 1, resolver_ce);
-    ce = p3::initClassEntry<Asio::TcpSocket>("Asio\\TcpSocket", tcp_socket_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::TcpSocket>("Asio\\TcpSocket", tcp_socket_methods);
     zend_class_implements(ce, 2, inet_socket_ce, stream_socket_ce);
-    ce = p3::initClassEntry<Asio::UdpSocket>("Asio\\UdpSocket", udp_socket_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::UdpSocket>("Asio\\UdpSocket", udp_socket_methods);
     zend_class_implements(ce, 2, inet_socket_ce, datagram_socket_ce);
-    ce = p3::initClassEntry<Asio::UnixSocket>("Asio\\UnixSocket", unix_socket_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::UnixSocket>("Asio\\UnixSocket", unix_socket_methods);
     zend_class_implements(ce, 2, local_socket_ce, stream_socket_ce);
-    ce = p3::initClassEntry<Asio::UdgSocket>("Asio\\UdgSocket", udg_socket_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::UdgSocket>("Asio\\UdgSocket", udg_socket_methods);
     zend_class_implements(ce, 2, local_socket_ce, datagram_socket_ce);
-    ce = p3::initClassEntry<Asio::TcpAcceptor>("Asio\\TcpAcceptor", tcp_acceptor_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::TcpAcceptor>("Asio\\TcpAcceptor", tcp_acceptor_methods);
     zend_class_implements(ce, 1, acceptor_ce);
-    ce = p3::initClassEntry<Asio::UnixAcceptor>("Asio\\UnixAcceptor", unix_acceptor_methods);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::UnixAcceptor>("Asio\\UnixAcceptor", unix_acceptor_methods);
     zend_class_implements(ce, 1, acceptor_ce);
+    ce->ce_flags |= ZEND_ACC_FINAL;
+    ce = p3::init_class_entry<Asio::StreamDescriptor>("Asio\\StreamDescriptor", stream_descriptor_methods);
+    zend_class_implements(ce, 1, io_object_ce);
+    ce->ce_flags |= ZEND_ACC_FINAL;
 	return SUCCESS;
 }
 /* }}} */
@@ -429,6 +496,13 @@ PHP_MINFO_FUNCTION(asio)
         "disabled"
 #endif // ENABLE_STRAND
     );
+    php_info_print_table_header(2, "Null buffers support",
+#ifdef ENABLE_NULL_BUFFERS
+        "enabled"
+#else
+        "disabled"
+#endif // ENABLE_NULL_BUFFERS
+    );
 	php_info_print_table_end();
 }
 /* }}} */
@@ -437,7 +511,7 @@ PHP_MINFO_FUNCTION(asio)
 zend_module_entry asio_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"asio",
-	nullptr,
+	nullptr,              
 	PHP_MINIT(asio),
 	nullptr,
 	nullptr,

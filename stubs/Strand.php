@@ -56,4 +56,11 @@ final class Strand
      * @return WrappedHandler
      */
     function wrap(callable $callback) {}
+
+    /**
+     * Destroy this strand object.
+     *
+     * @return void
+     */
+    function destroy() {}
 }

@@ -13,6 +13,7 @@ $service->post(function () use ($service) {
     $sig_num = yield $signal->wait();
     if (Asio\Service::lastError()) {
         $signal->cancel();
+        $signal->destroy();
         return;
     }
     echo "Server received signal $sig_num. Send signal again to exit.\n";

@@ -15,7 +15,7 @@ namespace Asio;
  *
  * @package Asio
  */
-interface Resolver
+interface Resolver extends IoObject
 {
     /**
      * Initiate an asynchronous resolve against the resolver.
@@ -27,11 +27,4 @@ interface Resolver
      * @return Future
      */
     function resolve(string $host, string $service = '', callable $callback, $argument = null);
-
-    /**
-     * Cancel resolve operation and destroy the resolver.
-     *
-     * @return void
-     */
-    function cancel();
 }

@@ -17,7 +17,7 @@ namespace Asio;
  *
  * @package Asio
  */
-class WrappedHandler
+final class WrappedHandler
 {
     /**
      * This class can only be instantiated using `Strand::wrap()`.
