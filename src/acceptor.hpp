@@ -10,25 +10,25 @@
 #include "base.hpp"
 #include "socket.hpp"
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio stream socket acceptor.
     /// Provide TCP services.
     template <typename Protocol>
-    class Acceptor : public Base
+    class acceptor : public base<acceptor<Protocol>>
     {
         /// Boost.Asio acceptor instance.
         typename Protocol::acceptor acceptor_;
 
         /// Accept handler.
         zval* handler(const boost::system::error_code& error,
-            Socket<Protocol>* socket, zval* callback, zval* argument);
+            socket<Protocol>* socket, zval* callback, zval* argument);
 
     public:
         /// Constructor.
-        explicit Acceptor(
+        explicit acceptor(
             boost::asio::io_service& io_service
-        ) : Base(io_service), acceptor_(io_service) {}
+        ) : base<acceptor>(io_service), acceptor_(io_service) {}
 
         P3_METHOD_DECLARE(open);
 
@@ -47,6 +47,6 @@ namespace Asio
         PHP_ASIO_CE_DECLARE();
     };
 
-    using TcpAcceptor = Acceptor<tcp>;
-    using UnixAcceptor = Acceptor<unix>;
+    using tcp_acceptor = acceptor<tcp>;
+    using unix_acceptor = acceptor<unix>;
 }

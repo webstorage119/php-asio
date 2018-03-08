@@ -9,10 +9,10 @@
 #include "common.hpp"
 #include "base.hpp"
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio deadline timer.
-    class Timer : public Base
+    class timer : public base<timer>
     {
         /// Boost.Asio timer instance.
         boost::asio::deadline_timer timer_;
@@ -23,9 +23,9 @@ namespace Asio
 
     public:
         /// Constructor.
-        explicit Timer(
+        explicit timer(
             boost::asio::io_service& io_service
-        ) : Base(io_service), timer_(io_service) {}
+        ) : base<timer>(io_service), timer_(io_service) {}
 
         /* {{{ proto int Timer::expire(int time, [bool use_timestamp = false]);
          * Set timer expiry time. */

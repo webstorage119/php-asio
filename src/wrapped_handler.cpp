@@ -7,8 +7,8 @@
 #include "wrapped_handler.hpp"
 
 #ifdef ENABLE_STRAND
-namespace Asio
+namespace asio
 {
-    PHP_ASIO_CE_DEFINE(WrappedHandler);
+    PHP_ASIO_CE_DEFINE(wrapped_handler);
 }
 #endif // ENABLE_STRAND

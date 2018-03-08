@@ -9,11 +9,11 @@
 #include "common.hpp"
 #include "base.hpp"
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio signal_set.
     /// Provides functionalities for signal handling.
-    class Signal : public Base
+    class signal : public base<signal>
     {
         /// Boost.Asio signal_set instance.
         boost::asio::signal_set signal_;
@@ -24,9 +24,9 @@ namespace Asio
 
     public:
         /// Constructor.
-        explicit Signal(
+        explicit signal(
             boost::asio::io_service& io_service
-        ) : Base(io_service), signal_(io_service) {}
+        ) : base<signal>(io_service), signal_(io_service) {}
 
         /* {{{ proto int Signal::add(int sig_num, [int ...]);
          * Add the specified signal(s) to the signal set. */

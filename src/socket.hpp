@@ -14,11 +14,11 @@
 #define ENABLE_IF_INET(P) std::string(P::endpoint::*port)()
 #define ENABLE_IF_LOCAL(P) std::string(P::endpoint::*path)()
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio socket.
     template <typename Protocol>
-    class Socket : public Base
+    class socket : public base<socket<Protocol>>
     {
         /// Boost.Asio socket instance.
         typename Protocol::socket socket_;
@@ -40,10 +40,7 @@ namespace Asio
         static thread_local std::string last_path_;
 #endif // ENABLE_COROUTINE
 
-        /**
-         * Connect handler.
-         * @param error : Error code
-         */
+        /// Connect handler.
         zval* connect_handler(const boost::system::error_code& error,
             zval* callback, zval* argument);
 
@@ -64,9 +61,9 @@ namespace Asio
 
     public:
         /// Constructor.
-        explicit Socket(
+        explicit socket(
             boost::asio::io_service& io_service
-        ) : Base(io_service), socket_(io_service) {}
+        ) : base<socket>(io_service), socket_(io_service) {}
 
         /// Get reference of socket.
         typename Protocol::socket& get_socket()
@@ -184,8 +181,8 @@ namespace Asio
         PHP_ASIO_CE_DECLARE();
     };
 
-    using TcpSocket = Socket<tcp>;
-    using UnixSocket = Socket<unix>;
-    using UdpSocket = Socket<udp>;
-    using UdgSocket = Socket<udg>;
+    using tcp_socket = socket<tcp>;
+    using unix_socket = socket<unix>;
+    using udp_socket = socket<udp>;
+    using udg_socket = socket<udg>;
 }

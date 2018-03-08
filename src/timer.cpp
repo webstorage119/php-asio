@@ -9,9 +9,9 @@
 #include "timer.hpp"
 #include "future.hpp"
 
-namespace Asio
+namespace asio
 {
-    zval* Timer::handler(const boost::system::error_code& error,
+    zval* timer::handler(const boost::system::error_code& error,
         zval* callback, zval* argument)
     {
         PHP_ASIO_INVOKE_CALLBACK_START(3)
@@ -20,7 +20,7 @@ namespace Asio
         CORO_RETURN_NULL();
     }
 
-    P3_METHOD(Timer, expire)
+    P3_METHOD(timer, expire)
     {
         zend_long time;
         zend_bool use_timestamp = 0;
@@ -38,7 +38,7 @@ namespace Asio
         RETVAL_EC(ec);
     }
 
-    P3_METHOD(Timer, wait)
+    P3_METHOD(timer, wait)
     {
         zval* callback = nullptr;
         zval* argument = nullptr;
@@ -48,17 +48,17 @@ namespace Asio
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<NOARG>(boost::bind(&Timer::handler, this, _1, STRAND_UNWRAP(), args));
+        future->on_resolve<NOARG>(boost::bind(&timer::handler, this, _1, STRAND_UNWRAP(), args));
         timer_.async_wait(STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
     }
 
-    P3_METHOD(Timer, cancel)
+    P3_METHOD(timer, cancel)
     {
         boost::system::error_code ec;
         timer_.cancel(ec);
         RETVAL_EC(ec);
     }
 
-    PHP_ASIO_CE_DEFINE(Timer);
+    PHP_ASIO_CE_DEFINE(timer);
 }

@@ -8,37 +8,37 @@
 
 #include "common.hpp"
 
-/// A base class for all I/O objects.
-namespace Asio
+namespace asio
 {
-    class Base
+    /// A base class for all I/O objects.
+    template <typename T>
+    class base
     {
     protected:
         /// IO service of this object.
         boost::asio::io_service& io_service_;
 
         /// Constructor.
-        explicit Base(boost::asio::io_service& io_service) : io_service_(io_service) {}
+        explicit base(boost::asio::io_service& io_service) : io_service_(io_service) {}
 
     public:
         /// Deleted default constructor.
-        Base() = delete;
+        base() = delete;
 
         /// Default destructor.
-        virtual ~Base() = default;
+        virtual ~base() = default;
 
         /// Deleted copy constructor.
-        Base(const Base&) = delete;
+        base(const base&) = delete;
 
         /// Deleted copy assignment operator.
-        Base& operator=(const Base&) = delete;
+        base& operator=(const base&) = delete;
 
         /* {{{ proto void IoObject::destroy();
          * Destroy this I/O object. */
-        template <typename T>
         P3_METHOD_DECLARE(destroy)
         {
-            PHP_ASIO_OBJ_DTOR(dynamic_cast<T*>(this));
+            PHP_ASIO_OBJ_DTOR(static_cast<T*>(this));
         }
         /* }}} */
     };

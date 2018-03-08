@@ -90,16 +90,16 @@
  // Handlers with one argument is treated as ones with two arguments.
 #define NOARG int
 #define ASYNC_HANDLER_SINGLE_ARG std::function<void(const boost::system::error_code&)>( \
-    boost::bind(&Future::resolve<NOARG>, future, boost::asio::placeholders::error, 0))
+    boost::bind(&future::resolve<NOARG>, future, boost::asio::placeholders::error, 0))
 #define ASYNC_HANDLER_DOUBLE_ARG(type) std::function<void(const boost::system::error_code&, type)>( \
-    boost::bind(&Future::resolve<type>, future, boost::asio::placeholders::error, _2))
+    boost::bind(&future::resolve<type>, future, boost::asio::placeholders::error, _2))
 
 // If you don't need coroutines, you can turn it off for better performance.
 #ifdef ENABLE_COROUTINE
-#define CORO_REGISTER(value) Future::coroutine(value)
+#define CORO_REGISTER(value) future::coroutine(value)
 #define FUTURE_INIT() \
     zend_object* obj; \
-    auto future = Future::add(obj);
+    auto future = future::add(obj);
 #define FUTURE_RETURN() RETVAL_OBJ(obj)
 #define INIT_RETVAL() \
     ZVAL_PTR_INIT(retval); \
@@ -107,7 +107,7 @@
 #define PASS_RETVAL retval
 #else
 #define CORO_REGISTER(value)
-#define FUTURE_INIT() auto future = Future::add()
+#define FUTURE_INIT() auto future = future::add()
 #define FUTURE_RETURN()
 #define INIT_RETVAL() ZVAL_INIT(retval)
 #define PASS_RETVAL &retval
@@ -130,25 +130,6 @@
 #define STRAND_UNWRAP() cb
 #define STRAND_RESOLVE(arg) arg
 #endif // ENABLE_STRAND
-
-#if defined(ENABLE_NULL_BUFFERS) && BOOST_VERSION >= 106600
-// Null buffers are deprecated as of Boost 1.66.
-// Method `async_wait()` on sockets and stream descriptors is preferred.
-#undef ENABLE_NULL_BUFFERS
-#endif
-#ifdef ENABLE_NULL_BUFFERS
-#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
-    if (UNEXPECTED(length < 0)) { \
-        PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected."); \
-        RETURN_NULL(); \
-    }
-#else
-#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
-    if (UNEXPECTED(length <= 0)) { \
-        PHP_ASIO_ERROR(E_WARNING, "Positive integer expected."); \
-        RETURN_NULL(); \
-    }
-#endif // ENABLE_NULL_BUFFERS
 
 #define PHP_ASIO_INVOKE_CALLBACK_START(argc) \
     const auto _argc = argc; \
@@ -177,7 +158,6 @@
 
 // To ensure the callback and the extra arg is still alive when async operation resolves,
 // We shall allocate new memory on the heap.
-// Note that `Z_ADDREF_P()` will not work here.
 #define PHP_ASIO_FUTURE_INIT() \
     zval* cb = nullptr; \
     if (callback) { \

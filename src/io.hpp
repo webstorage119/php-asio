@@ -35,7 +35,18 @@
         (obj).assign(p(), resource_to_fd(fd), ec); \
     RETVAL_EC(ec)
 
+#if defined(ENABLE_NULL_BUFFERS) && BOOST_VERSION >= 106600
+ // Null buffers are deprecated as of Boost 1.66.
+ // Method `async_wait()` on sockets and stream descriptors is preferred.
+#undef ENABLE_NULL_BUFFERS
+#endif
+
 #ifdef ENABLE_NULL_BUFFERS
+#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
+    if (UNEXPECTED(length < 0)) { \
+        PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected."); \
+        RETURN_NULL(); \
+    }
 #define PHP_ASIO_EMPTY_READ_BUFFER length == 0 ? ZSTR_EMPTY_ALLOC() :
 #define PHP_ASIO_ON_READABLE(obj) \
     if (length == 0) \
@@ -57,6 +68,11 @@
                 STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t))); \
     else
 #else
+#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
+    if (UNEXPECTED(length <= 0)) { \
+        PHP_ASIO_ERROR(E_WARNING, "Positive integer expected."); \
+        RETURN_NULL(); \
+    }
 #define PHP_ASIO_EMPTY_READ_BUFFER
 #define PHP_ASIO_ON_READABLE(obj)
 #define PHP_ASIO_EMPTY_WRITE_BUFFER
@@ -116,7 +132,7 @@
                 STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t))); \
     FUTURE_RETURN()
 
-namespace Asio
+namespace asio
 {
     /// Wrap a zend string into const buffer.
     inline auto const_buffer(const zend_string* str)

@@ -7,9 +7,9 @@
 #include "signal.hpp"
 #include "future.hpp"
 
-namespace Asio
+namespace asio
 {
-    zval* Signal::handler(const boost::system::error_code& error,
+    zval* signal::handler(const boost::system::error_code& error,
         int signal, zval* callback, zval* argument)
     {
         PHP_ASIO_INVOKE_CALLBACK_START(4);
@@ -19,7 +19,7 @@ namespace Asio
         CORO_RETURN(ZVAL_LONG, static_cast<zend_long>(signal));
     }
 
-    P3_METHOD(Signal, add)
+    P3_METHOD(signal, add)
     {
         size_t sig_len = 0;
         zval* sig_num = nullptr;
@@ -39,7 +39,7 @@ namespace Asio
         RETVAL_EC(ec);
     }
 
-    P3_METHOD(Signal, remove)
+    P3_METHOD(signal, remove)
     {
         size_t sig_len = 0;
         zval* sig_num = nullptr;
@@ -59,7 +59,7 @@ namespace Asio
         RETVAL_EC(ec);
     }
 
-    P3_METHOD(Signal, wait)
+    P3_METHOD(signal, wait)
     {
         zval* callback = nullptr;
         zval* argument = nullptr;
@@ -70,22 +70,22 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<int>(boost::bind(
-            &Signal::handler, this, _1, _2, STRAND_UNWRAP(), args));
+            &signal::handler, this, _1, _2, STRAND_UNWRAP(), args));
         signal_.async_wait(STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(int)));
         FUTURE_RETURN();
     }
 
-    P3_METHOD(Signal, clear)
+    P3_METHOD(signal, clear)
     {
         boost::system::error_code ec;
         RETVAL_EC(signal_.clear(ec));
     }
 
-    P3_METHOD(Signal, cancel)
+    P3_METHOD(signal, cancel)
     {
         boost::system::error_code ec;
         RETVAL_EC(signal_.cancel(ec));
     }
 
-    PHP_ASIO_CE_DEFINE(Signal);
+    PHP_ASIO_CE_DEFINE(signal);
 }

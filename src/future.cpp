@@ -8,32 +8,32 @@
 #include "generator.hpp"
 #include "zend_generators.h"
 
-namespace Asio
+namespace asio
 {
-    Future* Future::add(
+    future* future::add(
 #ifdef ENABLE_COROUTINE
         zend_object*& obj)
     {
-        obj = p3::alloc_object<Future>(class_entry, [](Future* ptr)
+        obj = p3::alloc_object<future>(class_entry, [](future* ptr)
         {
-            new(ptr) Future;
+            new(ptr) future;
         });
         GC_ADDREF(obj);
-        return p3::to_object<Future>(obj);
+        return p3::to_object<future>(obj);
 #else
         ) {
-        return new Future;
+        return new future;
 #endif // ENABLE_COROUTINE
     }
 
     template <typename T>
-    void Future::on_resolve(const ASYNC_CALLBACK(T)&& callback)
+    void future::on_resolve(const ASYNC_CALLBACK(T)&& callback)
     {
         callback_ = new ASYNC_CALLBACK(T)(std::move(callback));
     }
 
     template <typename T>
-    void Future::resolve(const boost::system::error_code& ec, T arg)
+    void future::resolve(const boost::system::error_code& ec, T arg)
     {
         auto callback = static_cast<ASYNC_CALLBACK(T)*>(callback_);
         send_ = (*callback)(ec, arg);
@@ -55,11 +55,11 @@ namespace Asio
     }
 
 #ifdef ENABLE_STRAND
-    zval* Future::strand(zval* callable)
+    zval* future::strand(zval* callable)
     {
         if (callable && Z_TYPE_P(callable) == IS_OBJECT &&
-            instanceof_function(Z_OBJCE_P(callable), WrappedHandler::class_entry)) {
-            auto wrapped_hander = p3::to_object<WrappedHandler>(callable);
+            instanceof_function(Z_OBJCE_P(callable), wrapped_handler::class_entry)) {
+            auto wrapped_hander = p3::to_object<wrapped_handler>(callable);
             strand_ = &wrapped_hander->strand_;
             return wrapped_hander->callback_;
         }
@@ -68,14 +68,14 @@ namespace Asio
 #endif // ENABLE_STRAND
 
 #ifdef ENABLE_COROUTINE
-    void Future::coroutine(zval* value)
+    void future::coroutine(zval* value)
     {
         if (Z_TYPE_P(value) == IS_OBJECT && instanceof_function(Z_OBJCE_P(value), zend_ce_generator)) {
             const auto generator = reinterpret_cast<zend_generator*>(Z_OBJ_P(value));
             if (generator_valid(generator)) {
                 const auto ret = generator_current(generator);
                 if (ret && instanceof_function(Z_OBJCE_P(ret), class_entry)) {
-                    const auto future = p3::to_object<Future>(ret);
+                    const auto future = p3::to_object<asio::future>(ret);
                     future->generator_ = value;
                     future->yield_ = true;
                     return;
@@ -87,22 +87,22 @@ namespace Asio
         efree(value);
     }
 
-    P3_METHOD(Future, lastError)
+    P3_METHOD(future, lastError)
     {
         RETVAL_LONG(last_error_)
     }
 
-    thread_local int64_t Future::last_error_ = 0;
+    thread_local int64_t future::last_error_ = 0;
 
-    PHP_ASIO_CE_DEFINE(Future);
+    PHP_ASIO_CE_DEFINE(future);
 #endif // ENABLE_COROUTINE
 
-    template void Future::on_resolve(const ASYNC_CALLBACK(int)&&);
-    template void Future::on_resolve(const ASYNC_CALLBACK(size_t)&&);
-    template void Future::on_resolve(const ASYNC_CALLBACK(tcp::resolver::iterator)&&);
-    template void Future::on_resolve(const ASYNC_CALLBACK(udp::resolver::iterator)&&);
-    template void Future::resolve(const boost::system::error_code&, int);
-    template void Future::resolve(const boost::system::error_code&, size_t);
-    template void Future::resolve(const boost::system::error_code&, tcp::resolver::iterator);
-    template void Future::resolve(const boost::system::error_code&, udp::resolver::iterator);
+    template void future::on_resolve(const ASYNC_CALLBACK(int)&&);
+    template void future::on_resolve(const ASYNC_CALLBACK(size_t)&&);
+    template void future::on_resolve(const ASYNC_CALLBACK(tcp::resolver::iterator)&&);
+    template void future::on_resolve(const ASYNC_CALLBACK(udp::resolver::iterator)&&);
+    template void future::resolve(const boost::system::error_code&, int);
+    template void future::resolve(const boost::system::error_code&, size_t);
+    template void future::resolve(const boost::system::error_code&, tcp::resolver::iterator);
+    template void future::resolve(const boost::system::error_code&, udp::resolver::iterator);
 }

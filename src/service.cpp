@@ -28,141 +28,141 @@
     } \
     RETVAL_LONG(0)
 
-namespace Asio
+namespace asio
 {
-    P3_METHOD(Service, addTimer)
+    P3_METHOD(service, addTimer)
     {
-        PHP_ASIO_OBJ_ALLOC(timer, Timer, io_service_);
+        PHP_ASIO_OBJ_ALLOC(timer, asio::timer, io_service_);
         RETVAL_OBJ(timer);
     }
 
-    P3_METHOD(Service, addSignal)
+    P3_METHOD(service, addSignal)
     {
-        PHP_ASIO_OBJ_ALLOC(signal, Signal, io_service_);
+        PHP_ASIO_OBJ_ALLOC(signal, asio::signal, io_service_);
         RETVAL_OBJ(signal);
     }
 
-    P3_METHOD(Service, addTcpResolver)
+    P3_METHOD(service, addTcpResolver)
     {
-        PHP_ASIO_OBJ_ALLOC(resolver, TcpResolver, io_service_);
+        PHP_ASIO_OBJ_ALLOC(resolver, tcp_resolver, io_service_);
         RETVAL_OBJ(resolver);
     }
 
-    P3_METHOD(Service, addUdpResolver)
+    P3_METHOD(service, addUdpResolver)
     {
-        PHP_ASIO_OBJ_ALLOC(resolver, UdpResolver, io_service_);
+        PHP_ASIO_OBJ_ALLOC(resolver, udp_resolver, io_service_);
         RETVAL_OBJ(resolver);
     }
 
-    P3_METHOD(Service, addTcpSocket)
+    P3_METHOD(service, addTcpSocket)
     {
-        PHP_ASIO_OBJ_ALLOC(socket, TcpSocket, io_service_);
+        PHP_ASIO_OBJ_ALLOC(socket, tcp_socket, io_service_);
         RETVAL_OBJ(socket);
     }
 
-    P3_METHOD(Service, addUdpSocket)
+    P3_METHOD(service, addUdpSocket)
     {
-        PHP_ASIO_OBJ_ALLOC(socket, UdpSocket, io_service_);
+        PHP_ASIO_OBJ_ALLOC(socket, udp_socket, io_service_);
         RETVAL_OBJ(socket);
     }
 
-    P3_METHOD(Service, addUnixSocket)
+    P3_METHOD(service, addUnixSocket)
     {
-        PHP_ASIO_OBJ_ALLOC(socket, UnixSocket, io_service_);
+        PHP_ASIO_OBJ_ALLOC(socket, unix_socket, io_service_);
         RETVAL_OBJ(socket);
     }
 
-    P3_METHOD(Service, addUdgSocket)
+    P3_METHOD(service, addUdgSocket)
     {
-        PHP_ASIO_OBJ_ALLOC(socket, UdgSocket, io_service_);
+        PHP_ASIO_OBJ_ALLOC(socket, udg_socket, io_service_);
         RETVAL_OBJ(socket);
     }
 
-    P3_METHOD(Service, addTcpAcceptor)
+    P3_METHOD(service, addTcpAcceptor)
     {
-        PHP_ASIO_OBJ_ALLOC(acceptor, TcpAcceptor, io_service_);
+        PHP_ASIO_OBJ_ALLOC(acceptor, tcp_acceptor, io_service_);
         RETVAL_OBJ(acceptor);
     }
 
-    P3_METHOD(Service, addUnixAcceptor)
+    P3_METHOD(service, addUnixAcceptor)
     {
-        PHP_ASIO_OBJ_ALLOC(acceptor, UnixAcceptor, io_service_);
+        PHP_ASIO_OBJ_ALLOC(acceptor, unix_acceptor, io_service_);
         RETVAL_OBJ(acceptor);
     }
 
-    P3_METHOD(Service, addStreamDescriptor)
+    P3_METHOD(service, addStreamDescriptor)
     {
-        PHP_ASIO_OBJ_ALLOC(stream_descriptor, StreamDescriptor, io_service_);
-        RETVAL_OBJ(stream_descriptor);
+        PHP_ASIO_OBJ_ALLOC(descriptor, stream_descriptor, io_service_);
+        RETVAL_OBJ(descriptor);
     }
 
 #ifdef ENABLE_STRAND
-    P3_METHOD(Service, addStrand)
+    P3_METHOD(service, addStrand)
     {
-        PHP_ASIO_OBJ_ALLOC(strand, Strand, io_service_);
+        PHP_ASIO_OBJ_ALLOC(strand, asio::strand, io_service_);
         RETVAL_OBJ(strand);
     }
 #endif // ENABLE_STRAND
 
-    P3_METHOD(Service, run)
+    P3_METHOD(service, run)
     {
         PHP_ASIO_RUN_LOOP(io_service_.run);
     }
 
-    P3_METHOD(Service, runOne)
+    P3_METHOD(service, runOne)
     {
         PHP_ASIO_RUN_LOOP(io_service_.run_one);
     }
 
-    P3_METHOD(Service, poll)
+    P3_METHOD(service, poll)
     {
         PHP_ASIO_RUN_LOOP(io_service_.poll);
     }
 
-    P3_METHOD(Service, pollOne)
+    P3_METHOD(service, pollOne)
     {
         PHP_ASIO_RUN_LOOP(io_service_.poll_one);
     }
 
-    P3_METHOD(Service, stop)
+    P3_METHOD(service, stop)
     {
         io_service_.stop();
     }
 
-    P3_METHOD(Service, reset)
+    P3_METHOD(service, reset)
     {
         io_service_.reset();
     }
 
-    P3_METHOD(Service, stopped) const
+    P3_METHOD(service, stopped) const
     {
         RETVAL_BOOL(io_service_.stopped());
     }
 
-    P3_METHOD(Service, post)
+    P3_METHOD(service, post)
     {
         PHP_ASIO_DISPATCH_CALLBACK(io_service_.post);
     }
 
-    P3_METHOD(Service, dispatch)
+    P3_METHOD(service, dispatch)
     {
         PHP_ASIO_DISPATCH_CALLBACK(io_service_.dispatch);
     }
 
-    P3_METHOD(Service, forkPrepare)
+    P3_METHOD(service, forkPrepare)
     {
         PHP_ASIO_NOTIFY_FORK(fork_prepare);
     }
 
-    P3_METHOD(Service, forkParent)
+    P3_METHOD(service, forkParent)
     {
         PHP_ASIO_NOTIFY_FORK(fork_parent);
     }
 
-    P3_METHOD(Service, forkChild)
+    P3_METHOD(service, forkChild)
     {
         PHP_ASIO_NOTIFY_FORK(fork_child);
     }
 
-    PHP_ASIO_CE_DEFINE(Service);
+    PHP_ASIO_CE_DEFINE(service);
 }

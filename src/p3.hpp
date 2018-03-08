@@ -101,7 +101,7 @@ namespace p3 {
     }
 
     template <class T>
-    zend_class_entry* init_class_entry(const char* name, const zend_function_entry* methods)
+    zend_class_entry* class_init(const char* name, const zend_function_entry* methods)
     {
         zend_class_entry ce;
         INIT_CLASS_ENTRY_EX(ce, name, strlen(name), methods);
@@ -115,8 +115,7 @@ namespace p3 {
         return T::class_entry;
     }
 
-    template <>
-    inline zend_class_entry* init_class_entry<void>(const char* name, const zend_function_entry* methods)
+    inline zend_class_entry* interface_init(const char* name, const zend_function_entry* methods)
     {
         zend_class_entry ce;
         INIT_CLASS_ENTRY_EX(ce, name, strlen(name), methods);

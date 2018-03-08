@@ -9,10 +9,10 @@
 #include "common.hpp"
 
 #ifdef ENABLE_STRAND
-namespace Asio
+namespace asio
 {
     /// Async handler callback wrapped by strand.
-    class WrappedHandler
+    class wrapped_handler
     {
         /// Strand object for this wrapped handler.
         boost::asio::strand& strand_;
@@ -21,19 +21,19 @@ namespace Asio
         zval* callback_;
 
         // Future has access to Strand and handler callback.
-        friend class Future;
+        friend class future;
         
     public:
         /// Constructor.
-        explicit WrappedHandler(
+        explicit wrapped_handler(
             boost::asio::strand& strand, zval* callback
         ) : strand_(strand), callback_(callback) {}
 
         /// Deleted default constructor.
-        WrappedHandler() = delete;
+        wrapped_handler() = delete;
 
         /// Deleted copy constructor.
-        WrappedHandler(const WrappedHandler&) = delete;
+        wrapped_handler(const wrapped_handler&) = delete;
 
         /// Make this object callable.
         P3_METHOD_DECLARE(__invoke) {}
