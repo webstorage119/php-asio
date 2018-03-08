@@ -1,5 +1,9 @@
 /**
  * php-asio/generator.hpp
+ * 
+ * Several functions copied from zend_generators.c,
+ * which provides PHP's generator functionalities.
+ * Used by Future when coroutine is enabled.
  *
  * @author CismonX<admin@cismon.net>
  */
@@ -10,10 +14,10 @@
 
 #include <zend_generators.h>
 
+#ifdef ENABLE_COROUTINE
 namespace asio
 {
-    /* {{{ Functions copied from zend_generators.c */
-
+    /// Ensure that the generator is initialized.
     inline void zend_generator_ensure_initialized(zend_generator *generator)
     {
         if (UNEXPECTED(Z_TYPE(generator->value) == IS_UNDEF) &&
@@ -26,6 +30,7 @@ namespace asio
         }
     }
 
+    /// Check whether the generator is valid.
     inline bool generator_valid(zend_generator *generator)
     {
         zend_generator_ensure_initialized(generator);
@@ -33,6 +38,7 @@ namespace asio
         return EXPECTED(generator->execute_data != nullptr);
     }
 
+    /// Get current yield value of the generator.
     inline zval* generator_current(zend_generator* generator)
     {
         zend_generator_ensure_initialized(generator);
@@ -42,6 +48,7 @@ namespace asio
         return nullptr;
     }
 
+    /// Send a value to the generator.
     static void generator_send(zend_generator *generator, zval* value)
     {
         zend_generator_ensure_initialized(generator);
@@ -52,6 +59,5 @@ namespace asio
             ZVAL_COPY(root->send_target, value);
         zend_generator_resume(generator);
     }
-
-    /* }}} */
 }
+#endif // ENABLE_COROUTINE

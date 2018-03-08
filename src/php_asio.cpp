@@ -409,14 +409,14 @@ static zend_function_entry stream_descriptor_methods[] = {
 
 /* {{{ interfaces class_entry */
 
-auto io_object_ce = p3::init_class_entry<void>("Asio\\IoObject", io_object_method);
-auto resolver_ce = p3::init_class_entry<void>("Asio\\Resolver", resolver_methods);
-auto socket_ce = p3::init_class_entry<void>("Asio\\Socket", socket_methods);
-auto inet_socket_ce = p3::init_class_entry<void>("Asio\\InetSocket", inet_socket_methods);
-auto local_socket_ce = p3::init_class_entry<void>("Asio\\LocalSocket", local_socket_methods);
-auto stream_socket_ce = p3::init_class_entry<void>("Asio\\StreamSocket", stream_socket_methods);
-auto datagram_socket_ce = p3::init_class_entry<void>("Asio\\DatagramSocket", datagram_socket_methods);
-auto acceptor_ce = p3::init_class_entry<void>("Asio\\Acceptor", acceptor_methods);
+auto io_object_ce = p3::interface_init("Asio\\IoObject", io_object_method);
+auto resolver_ce = p3::interface_init("Asio\\Resolver", resolver_methods);
+auto socket_ce = p3::interface_init("Asio\\Socket", socket_methods);
+auto inet_socket_ce = p3::interface_init("Asio\\InetSocket", inet_socket_methods);
+auto local_socket_ce = p3::interface_init("Asio\\LocalSocket", local_socket_methods);
+auto stream_socket_ce = p3::interface_init("Asio\\StreamSocket", stream_socket_methods);
+auto datagram_socket_ce = p3::interface_init("Asio\\DatagramSocket", datagram_socket_methods);
+auto acceptor_ce = p3::interface_init("Asio\\Acceptor", acceptor_methods);
 
 /* }}} */
 
@@ -430,48 +430,48 @@ PHP_MINIT_FUNCTION(asio)
     local_socket_ce->parent = socket_ce;
     stream_socket_ce->parent = socket_ce;
     datagram_socket_ce->parent = socket_ce;
-    p3::init_class_entry<asio::service>("Asio\\Service", service_methods);
-    auto ce = p3::init_class_entry<asio::timer>("Asio\\Timer", timer_methods);
+    p3::class_init<asio::service>("Asio\\Service", service_methods);
+    auto ce = p3::class_init<asio::timer>("Asio\\Timer", timer_methods);
     zend_class_implements(ce, 1, io_object_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::signal>("Asio\\Signal", signal_methods);
+    ce = p3::class_init<asio::signal>("Asio\\Signal", signal_methods);
     zend_class_implements(ce, 1, io_object_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::tcp_resolver>("Asio\\TcpResolver", tcp_resolver_methods);
+    ce = p3::class_init<asio::tcp_resolver>("Asio\\TcpResolver", tcp_resolver_methods);
     zend_class_implements(ce, 1, resolver_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::udp_resolver>("Asio\\UdpResolver", udp_resolver_methods);
+    ce = p3::class_init<asio::udp_resolver>("Asio\\UdpResolver", udp_resolver_methods);
     zend_class_implements(ce, 1, resolver_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::tcp_socket>("Asio\\TcpSocket", tcp_socket_methods);
+    ce = p3::class_init<asio::tcp_socket>("Asio\\TcpSocket", tcp_socket_methods);
     zend_class_implements(ce, 2, inet_socket_ce, stream_socket_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::udp_socket>("Asio\\UdpSocket", udp_socket_methods);
+    ce = p3::class_init<asio::udp_socket>("Asio\\UdpSocket", udp_socket_methods);
     zend_class_implements(ce, 2, inet_socket_ce, datagram_socket_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::unix_socket>("Asio\\UnixSocket", unix_socket_methods);
+    ce = p3::class_init<asio::unix_socket>("Asio\\UnixSocket", unix_socket_methods);
     zend_class_implements(ce, 2, local_socket_ce, stream_socket_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::udg_socket>("Asio\\UdgSocket", udg_socket_methods);
+    ce = p3::class_init<asio::udg_socket>("Asio\\UdgSocket", udg_socket_methods);
     zend_class_implements(ce, 2, local_socket_ce, datagram_socket_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::tcp_acceptor>("Asio\\TcpAcceptor", tcp_acceptor_methods);
+    ce = p3::class_init<asio::tcp_acceptor>("Asio\\TcpAcceptor", tcp_acceptor_methods);
     zend_class_implements(ce, 1, acceptor_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::unix_acceptor>("Asio\\UnixAcceptor", unix_acceptor_methods);
+    ce = p3::class_init<asio::unix_acceptor>("Asio\\UnixAcceptor", unix_acceptor_methods);
     zend_class_implements(ce, 1, acceptor_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::stream_descriptor>("Asio\\StreamDescriptor", stream_descriptor_methods);
+    ce = p3::class_init<asio::stream_descriptor>("Asio\\StreamDescriptor", stream_descriptor_methods);
     zend_class_implements(ce, 1, io_object_ce);
     ce->ce_flags |= ZEND_ACC_FINAL;
 #ifdef ENABLE_COROUTINE
-    ce = p3::init_class_entry<asio::future>("Asio\\Future", nullptr);
+    ce = p3::class_init<asio::future>("Asio\\Future", nullptr);
     ce->ce_flags |= ZEND_ACC_FINAL;
 #endif // ENABLE_COROUTINE
 #ifdef ENABLE_STRAND
-    ce = p3::init_class_entry<asio::strand>("Asio\\Strand", strand_methods);
+    ce = p3::class_init<asio::strand>("Asio\\Strand", strand_methods);
     ce->ce_flags |= ZEND_ACC_FINAL;
-    ce = p3::init_class_entry<asio::wrapped_handler>("Asio\\WrappedHandler", wrapped_handler_methods);
+    ce = p3::class_init<asio::wrapped_handler>("Asio\\WrappedHandler", wrapped_handler_methods);
     ce->ce_flags |= ZEND_ACC_FINAL;
 #endif // ENABLE_STRAND
 	return SUCCESS;

@@ -25,11 +25,9 @@ $service->post(function () use ($service) {
     }
     echo "Client received: \"$data\"", PHP_EOL;
     yield $socket->write('hello world');
-    if ($ec = Asio\Service::lastError()) {
+    if ($ec = Asio\Service::lastError())
         echo 'Write failed. ', posix_strerror($ec), PHP_EOL;
-        $socket->close();
-        $socket->destroy();
-        return;
-    }
+    $socket->close();
+    $socket->destroy();
 });
 $service->run();

@@ -28,7 +28,7 @@ namespace asio
         /// Constructor.
         explicit acceptor(
             boost::asio::io_service& io_service
-        ) : base<acceptor<Protocol>>(io_service), acceptor_(io_service) {}
+        ) : base<acceptor>(io_service), acceptor_(io_service) {}
 
         P3_METHOD_DECLARE(open);
 

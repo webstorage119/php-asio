@@ -40,10 +40,7 @@ namespace asio
         static thread_local std::string last_path_;
 #endif // ENABLE_COROUTINE
 
-        /**
-         * Connect handler.
-         * @param error : Error code
-         */
+        /// Connect handler.
         zval* connect_handler(const boost::system::error_code& error,
             zval* callback, zval* argument);
 
@@ -66,7 +63,7 @@ namespace asio
         /// Constructor.
         explicit socket(
             boost::asio::io_service& io_service
-        ) : base<socket<Protocol>>(io_service), socket_(io_service) {}
+        ) : base<socket>(io_service), socket_(io_service) {}
 
         /// Get reference of socket.
         typename Protocol::socket& get_socket()

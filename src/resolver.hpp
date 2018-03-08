@@ -30,7 +30,7 @@ namespace asio
         /// Constructor.
         explicit resolver(
             boost::asio::io_service& io_service
-        ) : base<resolver<Protocol>>(io_service), resolver_(io_service) {}
+        ) : base<resolver>(io_service), resolver_(io_service) {}
 
         /* {{{ proto Future Resolver::resolve(string host, [string service = ""],
          *               [callable callback], [mixed argument]);

@@ -131,25 +131,6 @@
 #define STRAND_RESOLVE(arg) arg
 #endif // ENABLE_STRAND
 
-#if defined(ENABLE_NULL_BUFFERS) && BOOST_VERSION >= 106600
-// Null buffers are deprecated as of Boost 1.66.
-// Method `async_wait()` on sockets and stream descriptors is preferred.
-#undef ENABLE_NULL_BUFFERS
-#endif
-#ifdef ENABLE_NULL_BUFFERS
-#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
-    if (UNEXPECTED(length < 0)) { \
-        PHP_ASIO_ERROR(E_WARNING, "Non-negative integer expected."); \
-        RETURN_NULL(); \
-    }
-#else
-#define PHP_ASIO_BUFFER_LEN_VALIDATE() \
-    if (UNEXPECTED(length <= 0)) { \
-        PHP_ASIO_ERROR(E_WARNING, "Positive integer expected."); \
-        RETURN_NULL(); \
-    }
-#endif // ENABLE_NULL_BUFFERS
-
 #define PHP_ASIO_INVOKE_CALLBACK_START(argc) \
     const auto _argc = argc; \
     if (callback && zend_is_callable(callback, 0, nullptr)) { \
@@ -177,7 +158,6 @@
 
 // To ensure the callback and the extra arg is still alive when async operation resolves,
 // We shall allocate new memory on the heap.
-// Note that `Z_ADDREF_P()` will not work here.
 #define PHP_ASIO_FUTURE_INIT() \
     zval* cb = nullptr; \
     if (callback) { \
