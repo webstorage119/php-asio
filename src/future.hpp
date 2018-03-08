@@ -11,12 +11,12 @@
 
 #define ASYNC_CALLBACK(type) std::function<zval*(const boost::system::error_code&, type)>
 
-namespace Asio
+namespace asio
 {
     /// Class Future.
     /// When an asynchronous operation completes, its Future will be resolved.
     /// And the corresponding coroutine will resume (if Future was yielded by a Generator).
-    class Future
+    class future
     {
         /// Handler callback of the async operation.
         void* callback_ = nullptr;
@@ -41,21 +41,21 @@ namespace Asio
 #endif // ENABLE_STRAND
 
         /// Make default constructor private to avoid user instantiation.
-        explicit Future() = default;
+        explicit future() = default;
 
     public:
         /// Create a new Future instance.
-        static Future* add(
+        static future* add(
 #ifdef ENABLE_COROUTINE
             zend_object*& obj
 #endif // ENABLE_COROUTINE
         );
 
         /// Deleted copy constructor.
-        Future(const Future&) = delete;
+        future(const future&) = delete;
 
         /// Deleted copy assignment operator.
-        Future& operator=(const Future&) = delete;
+        future& operator=(const future&) = delete;
 
         /// Set future resolver callback.
         template <typename T>

@@ -17,27 +17,27 @@
 #include "strand.hpp"
 #include "php_asio.hpp"
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio io_service.
     /// Provide access to instantiation of I/O objects.
-    class Service
+    class service
     {
         /// The io_service of all I/O objects in current instance.
         boost::asio::io_service io_service_;
 
     public:
         /// Default constructor.
-        Service() = default;
+        service() = default;
 
         /// Deleted copy constructor.
-        Service(const Service&) = delete;
+        service(const service&) = delete;
 
         /// Default destructor.
-        virtual ~Service() = default;
+        virtual ~service() = default;
 
         /// Deleted copy assignment operator.
-        Service& operator=(const Service&) = delete;
+        service& operator=(const service&) = delete;
 
         /* {{{ proto Timer Service::addTimer(void);
          * Add a new timer. */

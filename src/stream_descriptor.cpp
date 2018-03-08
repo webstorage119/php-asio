@@ -8,9 +8,9 @@
 #include "future.hpp"
 #include "io.hpp"
 
-namespace Asio
+namespace asio
 {
-    zval* StreamDescriptor::read_handler(const boost::system::error_code& error,
+    zval* stream_descriptor::read_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
         ZSTR_VAL(buffer)[length] = '\0';
@@ -22,7 +22,7 @@ namespace Asio
         CORO_RETURN(ZVAL_STR, buffer);
     }
 
-    zval* StreamDescriptor::write_handler(const boost::system::error_code& error,
+    zval* stream_descriptor::write_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
 #ifdef ENABLE_NULL_BUFFERS
@@ -36,7 +36,7 @@ namespace Asio
         CORO_RETURN(ZVAL_LONG, static_cast<zend_long>(length));
     }
 
-    P3_METHOD(StreamDescriptor, assign)
+    P3_METHOD(stream_descriptor, assign)
     {
         zval* fd;
         ZEND_PARSE_PARAMETERS_START(1, 1)
@@ -50,37 +50,37 @@ namespace Asio
         RETVAL_EC(ec);
     }
 
-    P3_METHOD(StreamDescriptor, isOpen)
+    P3_METHOD(stream_descriptor, isOpen)
     {
         RETVAL_BOOL(stream_descriptor_.is_open());
     }
 
-    P3_METHOD(StreamDescriptor, read)
+    P3_METHOD(stream_descriptor, read)
     {
-        PHP_ASIO_READ(StreamDescriptor, stream_descriptor_);
+        PHP_ASIO_READ(stream_descriptor, stream_descriptor_);
     }
 
-    P3_METHOD(StreamDescriptor, write)
+    P3_METHOD(stream_descriptor, write)
     {
-        PHP_ASIO_WRITE(StreamDescriptor, stream_descriptor_);
+        PHP_ASIO_WRITE(stream_descriptor, stream_descriptor_);
     }
 
-    P3_METHOD(StreamDescriptor, release)
+    P3_METHOD(stream_descriptor, release)
     {
         stream_descriptor_.release();
     }
 
-    P3_METHOD(StreamDescriptor, cancel)
+    P3_METHOD(stream_descriptor, cancel)
     {
         boost::system::error_code ec;
         RETVAL_EC(stream_descriptor_.cancel(ec));
     }
 
-    P3_METHOD(StreamDescriptor, close)
+    P3_METHOD(stream_descriptor, close)
     {
         boost::system::error_code ec;
         RETVAL_EC(stream_descriptor_.close(ec));
     }
 
-    PHP_ASIO_CE_DEFINE(StreamDescriptor);
+    PHP_ASIO_CE_DEFINE(stream_descriptor);
 }

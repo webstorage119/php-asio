@@ -35,26 +35,26 @@
     })
 
 #ifdef ENABLE_STRAND
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio strand.
     /// Provides serialised handler execution.
-    class Strand : public Base
+    class strand : public base<strand>
     {
         /// Boost.Asio strand instance.
         boost::asio::strand strand_;
 
     public:
         /// Constructor.
-        explicit Strand(
+        explicit strand(
             boost::asio::io_service& io_service
-        ) : Base(io_service), strand_(io_service) {}
+        ) : base<strand>(io_service), strand_(io_service) {}
 
         /// Deleted default constructor.
-        Strand() = delete;
+        strand() = delete;
 
         /// Deleted copy constructor.
-        Strand(const Strand&) = delete;
+        strand(const strand&) = delete;
 
         /* {{{ proto void Strand::dispatch(callable callback, [mixed argument]);
          * Request the strand to invoke the given handler. */

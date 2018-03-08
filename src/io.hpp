@@ -116,7 +116,7 @@
                 STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(size_t))); \
     FUTURE_RETURN()
 
-namespace Asio
+namespace asio
 {
     /// Wrap a zend string into const buffer.
     inline auto const_buffer(const zend_string* str)

@@ -7,10 +7,10 @@
 #include "resolver.hpp"
 #include "future.hpp"
 
-namespace Asio
+namespace asio
 {
     template <typename Protocol>
-    zval* Resolver<Protocol>::handler(const boost::system::error_code& error,
+    zval* resolver<Protocol>::handler(const boost::system::error_code& error,
         iterator iter, zval* callback, zval* argument)
     {
         iterator end;
@@ -31,7 +31,7 @@ namespace Asio
     }
 
     template <typename Protocol>
-    P3_METHOD(Resolver<Protocol>, resolve)
+    P3_METHOD(resolver<Protocol>, resolve)
     {
         zend_string* host;
         zend_string* service = nullptr;
@@ -45,25 +45,25 @@ namespace Asio
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<iterator>(boost::bind(&Resolver::handler, this, _1, _2, STRAND_UNWRAP(), args));
+        future->on_resolve<iterator>(boost::bind(&resolver::handler, this, _1, _2, STRAND_UNWRAP(), args));
         resolver_.async_resolve({ ZSTR_VAL(host), service ? ZSTR_VAL(service) : "" },
             STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(iterator)));
         FUTURE_RETURN();
     }
 
     template <typename Protocol>
-    P3_METHOD(Resolver<Protocol>, cancel)
+    P3_METHOD(resolver<Protocol>, cancel)
     {
         resolver_.cancel();
         RETVAL_LONG(0);
     }
 
     template <typename Protocol>
-    zend_class_entry* Resolver<Protocol>::class_entry;
+    zend_class_entry* resolver<Protocol>::class_entry;
 
     template <typename Protocol>
-    zend_object_handlers Resolver<Protocol>::handlers;
+    zend_object_handlers resolver<Protocol>::handlers;
 
-    template class Resolver<tcp>;
-    template class Resolver<udp>;
+    template class resolver<tcp>;
+    template class resolver<udp>;
 }

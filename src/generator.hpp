@@ -10,7 +10,7 @@
 
 #include <zend_generators.h>
 
-namespace Asio
+namespace asio
 {
     /* {{{ Functions copied from zend_generators.c */
 

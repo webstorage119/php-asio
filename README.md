@@ -45,7 +45,7 @@ A detailed documentation will be coming soon once the first stable version is re
 
 * Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
 
-* Sanity tests and examples for `Strand` and `StreamDescriptor`. (Priority: **Medium**)
+* Sanity tests and examples for `Strand` and `StreamDescriptor`. (Priority: **medium**)
 
 * Add support for serial ports. (Priority: **low**)
 

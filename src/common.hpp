@@ -90,16 +90,16 @@
  // Handlers with one argument is treated as ones with two arguments.
 #define NOARG int
 #define ASYNC_HANDLER_SINGLE_ARG std::function<void(const boost::system::error_code&)>( \
-    boost::bind(&Future::resolve<NOARG>, future, boost::asio::placeholders::error, 0))
+    boost::bind(&future::resolve<NOARG>, future, boost::asio::placeholders::error, 0))
 #define ASYNC_HANDLER_DOUBLE_ARG(type) std::function<void(const boost::system::error_code&, type)>( \
-    boost::bind(&Future::resolve<type>, future, boost::asio::placeholders::error, _2))
+    boost::bind(&future::resolve<type>, future, boost::asio::placeholders::error, _2))
 
 // If you don't need coroutines, you can turn it off for better performance.
 #ifdef ENABLE_COROUTINE
-#define CORO_REGISTER(value) Future::coroutine(value)
+#define CORO_REGISTER(value) future::coroutine(value)
 #define FUTURE_INIT() \
     zend_object* obj; \
-    auto future = Future::add(obj);
+    auto future = future::add(obj);
 #define FUTURE_RETURN() RETVAL_OBJ(obj)
 #define INIT_RETVAL() \
     ZVAL_PTR_INIT(retval); \
@@ -107,7 +107,7 @@
 #define PASS_RETVAL retval
 #else
 #define CORO_REGISTER(value)
-#define FUTURE_INIT() auto future = Future::add()
+#define FUTURE_INIT() auto future = future::add()
 #define FUTURE_RETURN()
 #define INIT_RETVAL() ZVAL_INIT(retval)
 #define PASS_RETVAL &retval

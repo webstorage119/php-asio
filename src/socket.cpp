@@ -8,10 +8,10 @@
 #include "future.hpp"
 #include "io.hpp"
 
-namespace Asio
+namespace asio
 {
     template <typename Protocol>
-    zval* Socket<Protocol>::connect_handler(const boost::system::error_code& error,
+    zval* socket<Protocol>::connect_handler(const boost::system::error_code& error,
         zval* callback, zval* argument)
     {
         PHP_ASIO_INVOKE_CALLBACK_START(3)
@@ -21,7 +21,7 @@ namespace Asio
     }
 
     template <typename Protocol> template <typename, typename>
-    zval* Socket<Protocol>::read_handler(const boost::system::error_code& error,
+    zval* socket<Protocol>::read_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
         // Zend strings have to be zero-terminated.
@@ -36,7 +36,7 @@ namespace Asio
     }
 
     template <typename Protocol>
-    zval* Socket<Protocol>::write_handler(const boost::system::error_code& error,
+    zval* socket<Protocol>::write_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, zval* callback, zval* argument)
     {
 #ifdef ENABLE_NULL_BUFFERS
@@ -51,7 +51,7 @@ namespace Asio
     }
 
     template <>
-    zval* UdpSocket::recv_handler(const boost::system::error_code& error,
+    zval* udp_socket::recv_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, udp::endpoint* endpoint,
         zval* callback, zval* argument)
     {
@@ -78,7 +78,7 @@ namespace Asio
     }
 
     template <>
-    zval* UdgSocket::recv_handler(const boost::system::error_code& error,
+    zval* udg_socket::recv_handler(const boost::system::error_code& error,
         size_t length, zend_string* buffer, udg::endpoint* endpoint,
         zval* callback, zval* argument)
     {
@@ -102,7 +102,7 @@ namespace Asio
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_INET(P)>
-    P3_METHOD(Socket<Protocol>, open_inet)
+    P3_METHOD(socket<Protocol>, open_inet)
     {
         zend_bool inet6;
         ZEND_PARSE_PARAMETERS_START(1, 1)
@@ -114,7 +114,7 @@ namespace Asio
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_LOCAL(P)>
-    P3_METHOD(Socket<Protocol>, open_local)
+    P3_METHOD(socket<Protocol>, open_local)
     {
         boost::system::error_code ec;
         socket_.open(Protocol(), ec);
@@ -122,19 +122,19 @@ namespace Asio
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_INET(P)>
-    P3_METHOD(Socket<Protocol>, assign_inet)
+    P3_METHOD(socket<Protocol>, assign_inet)
     {
         PHP_ASIO_INET_ASSIGN(socket_, Protocol);
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_LOCAL(P)>
-    P3_METHOD(Socket<Protocol>, assign_local)
+    P3_METHOD(socket<Protocol>, assign_local)
     {
         PHP_ASIO_LOCAL_ASSIGN(socket_, Protocol);
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_INET(P)>
-    P3_METHOD(Socket<Protocol>, bind_inet)
+    P3_METHOD(socket<Protocol>, bind_inet)
     {
         zend_string* address;
         zend_long port_num;
@@ -149,7 +149,7 @@ namespace Asio
     }
 
     template <typename Protocol> template <typename P, ENABLE_IF_LOCAL(P)>
-    P3_METHOD(Socket<Protocol>, bind_local)
+    P3_METHOD(socket<Protocol>, bind_local)
     {
         zend_string* socket_path;
         ZEND_PARSE_PARAMETERS_START(1, 1);
@@ -167,7 +167,7 @@ namespace Asio
      *               [callable callback], [mixed argument]);
      * Asynchronously connect to a remote endpoint. */
     template <>
-    P3_METHOD(TcpSocket, connect)
+    P3_METHOD(tcp_socket, connect)
     {
         zend_string* address;
         zend_long port;
@@ -182,7 +182,7 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<NOARG>(boost::bind(
-            &Socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
+            &socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
         socket_.async_connect({ boost::asio::ip::address::from_string(ZSTR_VAL(address)),
             static_cast<unsigned short>(port) }, STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
@@ -192,7 +192,7 @@ namespace Asio
     /* {{{ proto Future UnixSocket::connect(string path, [callable callback], [mixed argument]);
      * Asynchronously connect to a remote endpoint. */
     template <>
-    P3_METHOD(UnixSocket, connect)
+    P3_METHOD(unix_socket, connect)
     {
         zend_string* path;
         zval* callback = nullptr;
@@ -205,26 +205,26 @@ namespace Asio
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<NOARG>(boost::bind(
-            &Socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
+            &socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
         socket_.async_connect({ ZSTR_VAL(path) }, STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
     }
     /* }}} */
 
     template <typename Protocol> template <typename, typename>
-    P3_METHOD(Socket<Protocol>, read)
+    P3_METHOD(socket<Protocol>, read)
     {
-        PHP_ASIO_READ(Socket, socket_);
+        PHP_ASIO_READ(socket, socket_);
     }
 
     template <typename Protocol> template <typename, typename>
-    P3_METHOD(Socket<Protocol>, write)
+    P3_METHOD(socket<Protocol>, write)
     {
-        PHP_ASIO_WRITE(Socket, socket_);
+        PHP_ASIO_WRITE(socket, socket_);
     }
 
     template <typename Protocol> template <typename, typename>
-    P3_METHOD(Socket<Protocol>, recvFrom)
+    P3_METHOD(socket<Protocol>, recvFrom)
     {
         zend_long length;
         zval* callback = nullptr;
@@ -243,7 +243,7 @@ namespace Asio
             zend_string_alloc(static_cast<size_t>(length), 0);
         auto endpoint = new typename Protocol::endpoint;
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(&Socket::recv_handler,
+        future->on_resolve<size_t>(boost::bind(&socket::recv_handler,
             this, _1, _2, buffer_container, endpoint, STRAND_UNWRAP(), args));
 #ifdef ENABLE_NULL_BUFFERS
         if (length == 0)
@@ -260,7 +260,7 @@ namespace Asio
      *               [callable callback], [mixed argument]);
     * Send asynchronously to UDP socket. */
     template <> template <>
-    P3_METHOD(UdpSocket, sendTo)
+    P3_METHOD(udp_socket, sendTo)
     {
         zend_string* data;
         zend_string* address;
@@ -283,7 +283,7 @@ namespace Asio
 #endif //ENABLE_NULL_BUFFERS
             zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(&Socket::write_handler,
+        future->on_resolve<size_t>(boost::bind(&socket::write_handler,
             this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
 #ifdef ENABLE_NULL_BUFFERS
         if (ZSTR_LEN(data) == 0)
@@ -301,7 +301,7 @@ namespace Asio
      *               [callable callback], [mixed argument]);
      * Send asynchronously to UNIX datagram socket. */
     template <> template <>
-    P3_METHOD(UdgSocket, sendTo)
+    P3_METHOD(udg_socket, sendTo)
     {
         zend_string* data;
         zend_string* path;
@@ -321,7 +321,7 @@ namespace Asio
             zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<size_t>(boost::bind(
-            &Socket::write_handler, this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+            &socket::write_handler, this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
 #ifdef ENABLE_NULL_BUFFERS
         if (ZSTR_LEN(data) == 0)
             socket_.async_send_to(boost::asio::null_buffers(), { ZSTR_VAL(path) },
@@ -335,25 +335,25 @@ namespace Asio
     /* }}} */
 
     template <> template <>
-    P3_METHOD(TcpSocket, remoteAddr) const
+    P3_METHOD(tcp_socket, remoteAddr) const
     {
         RETVAL_STRING(socket_.remote_endpoint().address().to_string().c_str());
     }
 
     template <> template <>
-    P3_METHOD(TcpSocket, remotePort) const
+    P3_METHOD(tcp_socket, remotePort) const
     {
         RETVAL_LONG(static_cast<zend_long>(socket_.remote_endpoint().port()));
     }
 
     template <> template <>
-    P3_METHOD(UnixSocket, remotePath) const
+    P3_METHOD(unix_socket, remotePath) const
     {
         RETVAL_STRING(socket_.remote_endpoint().path().c_str());
     }
 
     template <> template <>
-    P3_METHOD(UdpSocket, remoteAddr) const
+    P3_METHOD(udp_socket, remoteAddr) const
     {
 #ifdef ENABLE_COROUTINE
         RETVAL_STRING(last_addr_<>.data());
@@ -364,7 +364,7 @@ namespace Asio
     }
 
     template <> template <>
-    P3_METHOD(UdpSocket, remotePort) const
+    P3_METHOD(udp_socket, remotePort) const
     {
 #ifdef ENABLE_COROUTINE
         RETVAL_LONG(static_cast<zend_long>(last_port_<>));
@@ -375,7 +375,7 @@ namespace Asio
     }
 
     template <> template <>
-    P3_METHOD(UdgSocket, remotePath) const
+    P3_METHOD(udg_socket, remotePath) const
     {
 #ifdef ENABLE_COROUTINE
         RETVAL_STRING(last_path_<>.data());
@@ -386,7 +386,7 @@ namespace Asio
     }
 
     template <typename Protocol>
-    P3_METHOD(Socket<Protocol>, available) const
+    P3_METHOD(socket<Protocol>, available) const
     {
         zval* error = nullptr;
         ZEND_PARSE_PARAMETERS_START(0, 1)
@@ -403,7 +403,7 @@ namespace Asio
     }
 
     template <typename Protocol>
-    P3_METHOD(Socket<Protocol>, atMark) const
+    P3_METHOD(socket<Protocol>, atMark) const
     {
         zval* error = nullptr;
         ZEND_PARSE_PARAMETERS_START(0, 1)
@@ -420,63 +420,63 @@ namespace Asio
     }
 
     template <typename Protocol>
-    P3_METHOD(Socket<Protocol>, cancel)
+    P3_METHOD(socket<Protocol>, cancel)
     {
         boost::system::error_code ec;
         RETVAL_EC(socket_.cancel(ec));
     }
 
     template <typename Protocol>
-    P3_METHOD(Socket<Protocol>, close)
+    P3_METHOD(socket<Protocol>, close)
     {
         boost::system::error_code ec;
         RETVAL_EC(socket_.close(ec));
     }
 
     template <typename Protocol>
-    zend_class_entry* Socket<Protocol>::class_entry;
+    zend_class_entry* socket<Protocol>::class_entry;
 
     template <typename Protocol>
-    zend_object_handlers Socket<Protocol>::handlers;
+    zend_object_handlers socket<Protocol>::handlers;
 
 #ifdef ENABLE_COROUTINE
     template <typename Protocol> template <typename, typename>
-    thread_local std::string Socket<Protocol>::last_addr_;
+    thread_local std::string socket<Protocol>::last_addr_;
 
     template <typename Protocol> template <typename, typename>
-    thread_local unsigned short Socket<Protocol>::last_port_;
+    thread_local unsigned short socket<Protocol>::last_port_;
 
     template <typename Protocol> template <typename, typename>
-    thread_local std::string Socket<Protocol>::last_path_;
+    thread_local std::string socket<Protocol>::last_path_;
 #endif // ENABLE_COROUTINE
 
-    template class Socket<tcp>;
-    template P3_METHOD(TcpSocket, open_inet);
-    template P3_METHOD(TcpSocket, assign_inet);
-    template P3_METHOD(TcpSocket, bind_inet);
-    template zval* TcpSocket::read_handler(const boost::system::error_code&,
+    template class socket<tcp>;
+    template P3_METHOD(tcp_socket, open_inet);
+    template P3_METHOD(tcp_socket, assign_inet);
+    template P3_METHOD(tcp_socket, bind_inet);
+    template zval* tcp_socket::read_handler(const boost::system::error_code&,
         size_t, zend_string*, zval*, zval*);
-    template P3_METHOD(TcpSocket, read);
-    template P3_METHOD(TcpSocket, write);
+    template P3_METHOD(tcp_socket, read);
+    template P3_METHOD(tcp_socket, write);
 
-    template class Socket<unix>;
-    template P3_METHOD(UnixSocket, open_local);
-    template P3_METHOD(UnixSocket, assign_local);
-    template P3_METHOD(UnixSocket, bind_local);
-    template zval* UnixSocket::read_handler(const boost::system::error_code&,
+    template class socket<unix>;
+    template P3_METHOD(unix_socket, open_local);
+    template P3_METHOD(unix_socket, assign_local);
+    template P3_METHOD(unix_socket, bind_local);
+    template zval* unix_socket::read_handler(const boost::system::error_code&,
         size_t, zend_string*, zval*, zval*);
-    template P3_METHOD(UnixSocket, read);
-    template P3_METHOD(UnixSocket, write);
+    template P3_METHOD(unix_socket, read);
+    template P3_METHOD(unix_socket, write);
 
-    template class Socket<udp>;
-    template P3_METHOD(UdpSocket, open_inet);
-    template P3_METHOD(UdpSocket, assign_inet);
-    template P3_METHOD(UdpSocket, bind_inet);
-    template P3_METHOD(UdpSocket, recvFrom);
+    template class socket<udp>;
+    template P3_METHOD(udp_socket, open_inet);
+    template P3_METHOD(udp_socket, assign_inet);
+    template P3_METHOD(udp_socket, bind_inet);
+    template P3_METHOD(udp_socket, recvFrom);
 
-    template class Socket<udg>;
-    template P3_METHOD(UdgSocket, open_local);
-    template P3_METHOD(UdgSocket, assign_local);
-    template P3_METHOD(UdgSocket, bind_local);
-    template P3_METHOD(UdgSocket, recvFrom);
+    template class socket<udg>;
+    template P3_METHOD(udg_socket, open_local);
+    template P3_METHOD(udg_socket, assign_local);
+    template P3_METHOD(udg_socket, bind_local);
+    template P3_METHOD(udg_socket, recvFrom);
 }

@@ -9,12 +9,12 @@
 #include "common.hpp"
 #include "base.hpp"
 
-namespace Asio
+namespace asio
 {
     /// Wrapper for Boost.Asio resolver.
     /// Provides hostname resolution.
     template <typename Protocol>
-    class Resolver : public Base
+    class resolver : public base<resolver<Protocol>>
     {
         /// Resolver iterator which holds an endpoint.
         using iterator = typename Protocol::resolver::iterator;
@@ -28,9 +28,9 @@ namespace Asio
 
     public:
         /// Constructor.
-        explicit Resolver(
+        explicit resolver(
             boost::asio::io_service& io_service
-        ) : Base(io_service), resolver_(io_service) {}
+        ) : base<resolver<Protocol>>(io_service), resolver_(io_service) {}
 
         /* {{{ proto Future Resolver::resolve(string host, [string service = ""],
          *               [callable callback], [mixed argument]);
@@ -46,6 +46,6 @@ namespace Asio
         PHP_ASIO_CE_DECLARE();
     };
 
-    using TcpResolver = Resolver<tcp>;
-    using UdpResolver = Resolver<udp>;
+    using tcp_resolver = resolver<tcp>;
+    using udp_resolver = resolver<udp>;
 }
