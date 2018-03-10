@@ -26,7 +26,7 @@ namespace asio
         base() = delete;
 
         /// Default destructor.
-        virtual ~base() = default;
+        ~base() = default;
 
         /// Deleted copy constructor.
         base(const base&) = delete;

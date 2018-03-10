@@ -18,7 +18,7 @@
 namespace asio
 {
     /// Ensure that the generator is initialized.
-    inline void zend_generator_ensure_initialized(zend_generator *generator)
+    inline void zend_generator_ensure_initialized(zend_generator* generator)
     {
         if (UNEXPECTED(Z_TYPE(generator->value) == IS_UNDEF) &&
             EXPECTED(generator->execute_data) &&
@@ -31,7 +31,7 @@ namespace asio
     }
 
     /// Check whether the generator is valid.
-    inline bool generator_valid(zend_generator *generator)
+    inline bool generator_valid(zend_generator* generator)
     {
         zend_generator_ensure_initialized(generator);
         zend_generator_get_current(generator);
@@ -49,7 +49,7 @@ namespace asio
     }
 
     /// Send a value to the generator.
-    static void generator_send(zend_generator *generator, zval* value)
+    inline void generator_send(zend_generator* generator, zval* value)
     {
         zend_generator_ensure_initialized(generator);
         if (UNEXPECTED(!generator->execute_data))
