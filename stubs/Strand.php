@@ -13,7 +13,7 @@ namespace Asio;
 /**
  * Class Strand
  *
- * Provides serialised handler execution.
+ * Provides serialized handler execution.
  *
  * @package Asio
  */

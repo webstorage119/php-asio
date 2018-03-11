@@ -13,35 +13,15 @@ Now php-asio is **in development**, do not use it in production.
 
 Bug reports and pull requests are welcome.
 
-## 2. Build
+## 2. Documentation
 
-### 2.1 Requirements
-
-* PHP Version >= 7.0
-
-* The [Boost](http://www.boost.org/) C++ libraries (Version >= 1.55.0)
-
-* C++ compiler which supports C++14
-
-### 2.2 Notes
-
-* If you don't need coroutines, you can `--disable-asio-coroutine` for better performance.
-
-* If you are writing multi-threaded programs, you can `--enable-asio-strand` for `Strand` support.
-
-* If you are using php-asio with other libraries which performs I/O operations themselves, you can `--enable-null-buffers` for reactor-style operations.
-
-* Windows is not yet supported.
-
-## 3. Documentation
+See the [Wiki](https://github.com/CismonX/php-asio/wiki) page for documentation.
 
 Signatures of classes and functions can be found within [stubs/](stubs/) directory, with PHPDoc.
 
 There are also some examples in the [examples/](examples/) directory.
 
-A detailed documentation will be coming soon once the first stable version is released.
-
-## 4. TODO list
+## 3. TODO list
 
 * Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
 

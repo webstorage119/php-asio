@@ -26,7 +26,7 @@ namespace asio
         base() = delete;
 
         /// Default destructor.
-        virtual ~base() = default;
+        ~base() = default;
 
         /// Deleted copy constructor.
         base(const base&) = delete;
@@ -34,7 +34,7 @@ namespace asio
         /// Deleted copy assignment operator.
         base& operator=(const base&) = delete;
 
-        /* {{{ proto void IoObject::destroy();
+        /* {{{ proto void IoObject::destroy(void);
          * Destroy this I/O object. */
         P3_METHOD_DECLARE(destroy)
         {
