@@ -38,7 +38,7 @@
 namespace asio
 {
     /// Wrapper for Boost.Asio strand.
-    /// Provides serialised handler execution.
+    /// Provides serialized handler execution.
     class strand : public base<strand>
     {
         /// Boost.Asio strand instance.

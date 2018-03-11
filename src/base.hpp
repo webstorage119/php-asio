@@ -34,7 +34,7 @@ namespace asio
         /// Deleted copy assignment operator.
         base& operator=(const base&) = delete;
 
-        /* {{{ proto void IoObject::destroy();
+        /* {{{ proto void IoObject::destroy(void);
          * Destroy this I/O object. */
         P3_METHOD_DECLARE(destroy)
         {
