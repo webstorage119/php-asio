@@ -25,11 +25,4 @@ interface IoObject
      * @return int : Error code
      */
     function cancel();
-
-    /**
-     * Destroy this I/O object.
-     *
-     * @return void
-     */
-    function destroy();
 }

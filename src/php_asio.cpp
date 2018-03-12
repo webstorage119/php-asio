@@ -210,7 +210,6 @@ static zend_function_entry strand_methods[] = {
     P3_ME_D(asio::strand, post, strand_dispatch_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::strand, runningInThisThread, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::strand, wrap, strand_wrap_arginfo, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::strand, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -230,7 +229,6 @@ static zend_function_entry timer_methods[] = {
     P3_ME_D(asio::timer, expire, timer_expire_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::timer, wait, timer_wait_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::timer, cancel, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::timer, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -240,7 +238,6 @@ static zend_function_entry signal_methods[] = {
     P3_ME_D(asio::signal, wait, signal_wait_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::signal, clear, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::signal, cancel, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::signal, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -253,14 +250,12 @@ static zend_function_entry resolver_methods[] = {
 static zend_function_entry tcp_resolver_methods[] = {
     P3_ME_D(asio::tcp_resolver, resolve, resolver_resolve_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::tcp_resolver, cancel, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::tcp_resolver, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
 static zend_function_entry udp_resolver_methods[] = {
     P3_ME_D(asio::udp_resolver, resolve, resolver_resolve_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::udp_resolver, cancel, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::udp_resolver, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -312,7 +307,6 @@ static zend_function_entry tcp_socket_methods[] = {
     P3_ME_D(asio::tcp_socket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::tcp_socket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::tcp_socket, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::tcp_socket, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -328,7 +322,6 @@ static zend_function_entry udp_socket_methods[] = {
     P3_ME_D(asio::udp_socket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::udp_socket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::udp_socket, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::udp_socket, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -344,7 +337,6 @@ static zend_function_entry unix_socket_methods[] = {
     P3_ME_D(asio::unix_socket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::unix_socket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::unix_socket, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::unix_socket, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -359,7 +351,6 @@ static zend_function_entry udg_socket_methods[] = {
     P3_ME_D(asio::udg_socket, atMark, socket_at_mark_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::udg_socket, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::udg_socket, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::udg_socket, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -378,7 +369,6 @@ static zend_function_entry tcp_acceptor_methods[] = {
     P3_ME_D(asio::tcp_acceptor, accept, acceptor_accept_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::tcp_acceptor, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::tcp_acceptor, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::tcp_acceptor, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -390,7 +380,6 @@ static zend_function_entry unix_acceptor_methods[] = {
     P3_ME_D(asio::unix_acceptor, accept, acceptor_accept_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::unix_acceptor, cancel, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::unix_acceptor, close, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::unix_acceptor, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 
@@ -401,7 +390,6 @@ static zend_function_entry stream_descriptor_methods[] = {
     P3_ME_D(asio::stream_descriptor, write, stream_socket_write_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::stream_descriptor, release, nullptr, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::stream_descriptor, cancel, nullptr, ZEND_ACC_PUBLIC)
-    P3_ME_D(asio::stream_descriptor, destroy, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 

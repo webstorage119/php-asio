@@ -67,8 +67,7 @@
 #define PHP_ASIO_OBJ_ALLOC(obj, type, arg) \
     auto obj = p3::alloc_object<type>(type::class_entry, [this](type* ptr) { \
         new(ptr) type(arg); \
-    }); \
-    GC_ADDREF(obj)
+    })
 
 #define PHP_ASIO_OBJ_DTOR(obj) GC_DELREF(p3::to_zend_object(obj))
 
@@ -76,7 +75,7 @@
 #define ZVAL_PTR_INIT(name) auto ZVAL_ALLOC(name)
 #define ZVAL_INIT(name) zval name = {{ 0 }}
 
-#define RETVAL_EC(ec) RETVAL_LONG(static_cast<zend_long>(ec.value()))
+#define RETVAL_EC(ec) RETVAL_LONG(static_cast<zend_long>((ec).value()))
 
 #define PHP_ASIO_ERROR(type, msg) php_error_docref(nullptr, type, msg)
 
@@ -89,17 +88,21 @@
 
  // Handlers with one argument is treated as ones with two arguments.
 #define NOARG int
-#define ASYNC_HANDLER_SINGLE_ARG std::function<void(const boost::system::error_code&)>( \
-    boost::bind(&future::resolve<NOARG>, future, boost::asio::placeholders::error, 0))
-#define ASYNC_HANDLER_DOUBLE_ARG(type) std::function<void(const boost::system::error_code&, type)>( \
-    boost::bind(&future::resolve<type>, future, boost::asio::placeholders::error, _2))
+#define ASYNC_HANDLER_SINGLE_ARG \
+    std::function<void(const boost::system::error_code&)>(boost::bind( \
+        &future::resolve<std::remove_pointer_t<decltype(this)>, NOARG>, \
+        future, boost::asio::placeholders::error, 0))
+#define ASYNC_HANDLER_DOUBLE_ARG(obj_type) \
+    std::function<void(const boost::system::error_code&, obj_type)>(boost::bind( \
+        &future::resolve<std::remove_pointer_t<decltype(this)>, obj_type>, \
+        future, boost::asio::placeholders::error, _2))
 
 // If you don't need coroutines, you can turn it off for better performance.
 #ifdef ENABLE_COROUTINE
 #define CORO_REGISTER(value) future::coroutine(value)
 #define FUTURE_INIT() \
     zend_object* obj; \
-    auto future = future::add(obj);
+    auto future = future::add(this, obj);
 #define FUTURE_RETURN() RETVAL_OBJ(obj)
 #define INIT_RETVAL() \
     ZVAL_PTR_INIT(retval); \
@@ -107,7 +110,7 @@
 #define PASS_RETVAL retval
 #else
 #define CORO_REGISTER(value)
-#define FUTURE_INIT() auto future = future::add()
+#define FUTURE_INIT() auto future = future::add(this)
 #define FUTURE_RETURN()
 #define INIT_RETVAL() ZVAL_INIT(retval)
 #define PASS_RETVAL &retval
@@ -159,6 +162,8 @@
 // To ensure the callback and the extra arg is still alive when async operation resolves,
 // We shall allocate new memory on the heap.
 #define PHP_ASIO_FUTURE_INIT() \
+    if (handler_count_inc() == 1) \
+        GC_ADDREF(p3::to_zend_object(this)); \
     zval* cb = nullptr; \
     if (callback) { \
         ZVAL_ALLOC(cb); \

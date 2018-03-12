@@ -18,7 +18,7 @@ namespace asio
 {
     /// Wrapper for Boost.Asio socket.
     template <typename Protocol>
-    class socket : public base<socket<Protocol>>
+    class socket : public base
     {
         /// Boost.Asio socket instance.
         typename Protocol::socket socket_;
@@ -63,7 +63,7 @@ namespace asio
         /// Constructor.
         explicit socket(
             boost::asio::io_service& io_service
-        ) : base<socket>(io_service), socket_(io_service) {}
+        ) : base(io_service), socket_(io_service) {}
 
         /// Get reference of socket.
         typename Protocol::socket& get_socket()
