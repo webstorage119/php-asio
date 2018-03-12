@@ -9,7 +9,7 @@
 extern zend_module_entry asio_module_entry;
 #define phpext_asio_ptr &asio_module_entry
 
-#define PHP_ASIO_VERSION "0.1.3"
+#define PHP_ASIO_VERSION "0.1.4"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define PHP_ASIO_API __attribute__ ((visibility("default")))

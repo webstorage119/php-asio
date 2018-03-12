@@ -25,7 +25,6 @@ function fork_worker(Asio\Signal $signal)
         cli_set_process_title('php-asio Worker');
         // The child process is not interested in processing the SIGCHLD signal.
         $signal->cancel();
-        $signal->destroy();
         $timer = $service->addTimer();
         $timer->expire(1000);
         $timer->wait($timer_cb = function (Asio\Timer $timer) use (&$timer_cb) {

@@ -243,7 +243,7 @@ namespace asio
             zend_string_alloc(static_cast<size_t>(length), 0);
         auto endpoint = new typename Protocol::endpoint;
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<size_t>(boost::bind(&socket::recv_handler,
+        future->template on_resolve<size_t>(boost::bind(&socket::recv_handler,
             this, _1, _2, buffer_container, endpoint, STRAND_UNWRAP(), args));
 #ifdef ENABLE_NULL_BUFFERS
         if (length == 0)

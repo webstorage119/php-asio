@@ -13,14 +13,12 @@ $service->post(function () use ($service) {
     if ($ec = Asio\Service::lastError()) {
         echo 'Connect failed. ', posix_strerror($ec), PHP_EOL;
         $socket->close();
-        $socket->destroy();
         return;
     }
     $data = yield $socket->read(100);
     if ($ec = Asio\Service::lastError()) {
         echo 'Read failed. ', posix_strerror($ec), PHP_EOL;
         $socket->close();
-        $socket->destroy();
         return;
     }
     echo "Client received: \"$data\"", PHP_EOL;
@@ -28,6 +26,5 @@ $service->post(function () use ($service) {
     if ($ec = Asio\Service::lastError())
         echo 'Write failed. ', posix_strerror($ec), PHP_EOL;
     $socket->close();
-    $socket->destroy();
 });
 $service->run();

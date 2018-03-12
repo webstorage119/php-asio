@@ -14,7 +14,7 @@ namespace asio
     /// Wrapper for Boost.Asio resolver.
     /// Provides hostname resolution.
     template <typename Protocol>
-    class resolver : public base<resolver<Protocol>>
+    class resolver : public base
     {
         /// Resolver iterator which holds an endpoint.
         using iterator = typename Protocol::resolver::iterator;
@@ -30,7 +30,7 @@ namespace asio
         /// Constructor.
         explicit resolver(
             boost::asio::io_service& io_service
-        ) : base<resolver>(io_service), resolver_(io_service) {}
+        ) : base(io_service), resolver_(io_service) {}
 
         /* {{{ proto Future Resolver::resolve(string host, [string service = ""],
          *               [callable callback], [mixed argument]);

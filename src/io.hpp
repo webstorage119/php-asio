@@ -95,7 +95,7 @@
     auto buffer_container = PHP_ASIO_EMPTY_READ_BUFFER \
         zend_string_alloc(static_cast<size_t>(length), 0); \
     PHP_ASIO_FUTURE_INIT(); \
-    future->on_resolve<size_t>(boost::bind(&type::read_handler, \
+    future->template on_resolve<size_t>(boost::bind(&type::read_handler, \
         this, _1, _2, buffer_container, STRAND_UNWRAP(), args)); \
     PHP_ASIO_ON_READABLE(obj) \
         if (read_some) \
@@ -121,7 +121,7 @@
     auto buffer_container = PHP_ASIO_EMPTY_WRITE_BUFFER \
         zend_string_copy(data); \
     PHP_ASIO_FUTURE_INIT(); \
-    future->on_resolve<size_t>(boost::bind(&type::write_handler, \
+    future->template on_resolve<size_t>(boost::bind(&type::write_handler, \
         this, _1, _2, buffer_container, STRAND_UNWRAP(), args)); \
     PHP_ASIO_ON_WRITABLE(obj) \
         if (write_some) \

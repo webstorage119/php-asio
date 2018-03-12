@@ -12,7 +12,7 @@
 namespace asio
 {
     /// Wrapper for Boost.Asio stream descriptor.
-    class stream_descriptor : public base<stream_descriptor>
+    class stream_descriptor : public base
     {
         /// Boost.Asio stream descriptor instance.
         boost::asio::posix::stream_descriptor stream_descriptor_;
@@ -29,7 +29,7 @@ namespace asio
         /// Constructor.
         explicit stream_descriptor(
             boost::asio::io_service& io_service
-        ) : base<stream_descriptor>(io_service), stream_descriptor_(io_service) {}
+        ) : base(io_service), stream_descriptor_(io_service) {}
 
         /* {{{ proto int StreamDescriptor::bind(int|resource fd);
          * Opens the descriptor to hold an existing native descriptor. */

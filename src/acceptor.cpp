@@ -130,10 +130,10 @@ namespace asio
             Z_PARAM_ZVAL(callback)
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
-        PHP_ASIO_OBJ_ALLOC(accepted_socket, socket<Protocol>, base<acceptor>::io_service_);
+        PHP_ASIO_OBJ_ALLOC(accepted_socket, socket<Protocol>, io_service_);
         PHP_ASIO_FUTURE_INIT();
         auto asio_socket = p3::to_object<socket<Protocol>>(accepted_socket);
-        future->on_resolve<NOARG>(boost::bind(
+        future->template on_resolve<NOARG>(boost::bind(
             &acceptor::handler, this, _1, asio_socket, STRAND_UNWRAP(), args));
         acceptor_.async_accept(asio_socket->get_socket(), STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();

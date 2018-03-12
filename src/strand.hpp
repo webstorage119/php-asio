@@ -39,7 +39,7 @@ namespace asio
 {
     /// Wrapper for Boost.Asio strand.
     /// Provides serialized handler execution.
-    class strand : public base<strand>
+    class strand : public base
     {
         /// Boost.Asio strand instance.
         boost::asio::strand strand_;
@@ -48,7 +48,7 @@ namespace asio
         /// Constructor.
         explicit strand(
             boost::asio::io_service& io_service
-        ) : base<strand>(io_service), strand_(io_service) {}
+        ) : base(io_service), strand_(io_service) {}
 
         /// Deleted default constructor.
         strand() = delete;

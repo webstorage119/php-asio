@@ -8,21 +8,29 @@
 #include "generator.hpp"
 #include "zend_generators.h"
 
+#include "timer.hpp"
+#include "signal.hpp"
+#include "resolver.hpp"
+#include "socket.hpp"
+#include "acceptor.hpp"
+#include "stream_descriptor.hpp"
+
 namespace asio
 {
     future* future::add(
+        void* io_object
 #ifdef ENABLE_COROUTINE
-        zend_object*& obj)
+        , zend_object*& obj)
     {
-        obj = p3::alloc_object<future>(class_entry, [](future* ptr)
-        {
-            new(ptr) future;
-        });
+        obj = p3::alloc_object<future>(class_entry,
+            [io_object](future* ptr) {
+                new(ptr) future(io_object);
+            });
         GC_ADDREF(obj);
         return p3::to_object<future>(obj);
 #else
         ) {
-        return new future;
+        return new future(io_object);
 #endif // ENABLE_COROUTINE
     }
 
@@ -32,7 +40,7 @@ namespace asio
         callback_ = new ASYNC_CALLBACK(T)(std::move(callback));
     }
 
-    template <typename T>
+    template <typename V, typename T>
     void future::resolve(const boost::system::error_code& ec, T arg)
     {
         auto callback = static_cast<ASYNC_CALLBACK(T)*>(callback_);
@@ -47,6 +55,9 @@ namespace asio
         zval_ptr_dtor(send_);
         efree(send_);
         delete callback;
+        auto io_object = static_cast<V*>(io_object_);
+        if (io_object->handler_count_dec() == 0)
+            PHP_ASIO_OBJ_DTOR(io_object);
 #ifdef ENABLE_COROUTINE
         PHP_ASIO_OBJ_DTOR(this);
 #else
@@ -101,8 +112,20 @@ namespace asio
     template void future::on_resolve(const ASYNC_CALLBACK(size_t)&&);
     template void future::on_resolve(const ASYNC_CALLBACK(tcp::resolver::iterator)&&);
     template void future::on_resolve(const ASYNC_CALLBACK(udp::resolver::iterator)&&);
-    template void future::resolve(const boost::system::error_code&, int);
-    template void future::resolve(const boost::system::error_code&, size_t);
-    template void future::resolve(const boost::system::error_code&, tcp::resolver::iterator);
-    template void future::resolve(const boost::system::error_code&, udp::resolver::iterator);
+
+    template void future::resolve<timer>(const boost::system::error_code&, int);
+    template void future::resolve<signal>(const boost::system::error_code&, int);
+    template void future::resolve<resolver<tcp>>(
+        const boost::system::error_code&, tcp::resolver::iterator);
+    template void future::resolve<resolver<udp>>(
+        const boost::system::error_code&, udp::resolver::iterator);
+    template void future::resolve<socket<tcp>>(const boost::system::error_code&, int);
+    template void future::resolve<socket<tcp>>(const boost::system::error_code&, size_t);
+    template void future::resolve<socket<unix>>(const boost::system::error_code&, int);
+    template void future::resolve<socket<unix>>(const boost::system::error_code&, size_t);
+    template void future::resolve<socket<udp>>(const boost::system::error_code&, size_t);
+    template void future::resolve<socket<udg>>(const boost::system::error_code&, size_t);
+    template void future::resolve<acceptor<tcp>>(const boost::system::error_code&, int);
+    template void future::resolve<acceptor<unix>>(const boost::system::error_code&, int);
+    template void future::resolve<stream_descriptor>(const boost::system::error_code&, size_t);
 }

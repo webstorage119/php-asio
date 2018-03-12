@@ -12,7 +12,6 @@ $acceptor->open(true);
 if ($ec = $acceptor->bind('::', 8081)) {
     echo 'Bind failed. ', posix_strerror($ec), PHP_EOL;
     $acceptor->close();
-    $acceptor->destroy();
     exit;
 }
 $acceptor->listen(20);
@@ -33,7 +32,6 @@ $acceptor->accept(
                 if ($ec) {
                     echo 'Read fail. ', posix_strerror($ec), PHP_EOL;
                     $socket->close();
-                    $socket->destroy();
                     return;
                 }
                 echo 'Client sent: ', trim($data), PHP_EOL;
@@ -42,7 +40,6 @@ $acceptor->accept(
                 if ($ec = Asio\Service::lastError()) {
                     echo 'Write fail. ', posix_strerror($ec), PHP_EOL;
                     $socket->close();
-                    $socket->destroy();
                     return;
                 }
                 echo $bytes_transferred, ' bytes written.', PHP_EOL;
@@ -54,7 +51,6 @@ $acceptor->open();
 if ($ec = $acceptor->bind('/tmp/test.sock')) {
     echo 'Bind failed. ', posix_strerror($ec), PHP_EOL;
     $acceptor->close();
-    $acceptor->destroy();
     exit;
 }
 $acceptor->listen(20);

@@ -15,7 +15,7 @@ namespace asio
     /// Wrapper for Boost.Asio stream socket acceptor.
     /// Provide TCP services.
     template <typename Protocol>
-    class acceptor : public base<acceptor<Protocol>>
+    class acceptor : public base
     {
         /// Boost.Asio acceptor instance.
         typename Protocol::acceptor acceptor_;
@@ -28,7 +28,7 @@ namespace asio
         /// Constructor.
         explicit acceptor(
             boost::asio::io_service& io_service
-        ) : base<acceptor>(io_service), acceptor_(io_service) {}
+        ) : base(io_service), acceptor_(io_service) {}
 
         P3_METHOD_DECLARE(open);
 

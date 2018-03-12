@@ -21,6 +21,9 @@ namespace asio
         /// Handler callback of the async operation.
         void* callback_ = nullptr;
 
+        /// Pointer to the I/O object which created this Future.
+        void* io_object_;
+
 #ifdef ENABLE_COROUTINE
         /// Last error code emitted by yielded async operations of this thread.
         static thread_local int64_t last_error_;
@@ -40,16 +43,20 @@ namespace asio
         boost::asio::strand* strand_ = nullptr;
 #endif // ENABLE_STRAND
 
-        /// Make default constructor private to avoid user instantiation.
-        explicit future() = default;
+        /// Constructor.
+        explicit future(void* io_object) : io_object_(io_object) {}
 
     public:
         /// Create a new Future instance.
         static future* add(
+            void* io_object
 #ifdef ENABLE_COROUTINE
-            zend_object*& obj
+            , zend_object*& obj
 #endif // ENABLE_COROUTINE
         );
+
+        /// Deleted default constructor.
+        explicit future() = delete;
 
         /// Deleted copy constructor.
         future(const future&) = delete;
@@ -62,7 +69,7 @@ namespace asio
         void on_resolve(const ASYNC_CALLBACK(T)&& callback);
 
         /// Resolve the Future upon operation completion.
-        template <typename T>
+        template <typename V, typename T>
         void resolve(const boost::system::error_code& ec, T arg);
 
 #ifdef ENABLE_STRAND
@@ -77,7 +84,7 @@ namespace asio
 
 #ifdef ENABLE_COROUTINE
         /// Attempt to start/resume a coroutine with a PHP Generator.
-        static void coroutine(zval* generator);
+        static void coroutine(zval* value);
 
         /// Get last error emitted by handler callback within yielded Future.
         static P3_METHOD_DECLARE(lastError);
