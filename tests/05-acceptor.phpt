@@ -54,6 +54,10 @@ $service->post(function () use ($service) {
 });
 $service->run();
 ?>
+--CLEAN--
+<?php
+unlink(getenv('SOCK_FILE'));
+?>
 --EXPECT--
 Accepted
 Accepted
