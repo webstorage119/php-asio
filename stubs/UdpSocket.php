@@ -86,9 +86,4 @@ final class UdpSocket implements InetSocket, DatagramSocket
      * {@inheritdoc}
      */
     function close() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

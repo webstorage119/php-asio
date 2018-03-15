@@ -69,9 +69,4 @@ final class TcpAcceptor implements Acceptor
      * {@inheritdoc}
      */
     function close() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

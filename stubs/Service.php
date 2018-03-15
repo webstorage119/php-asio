@@ -13,7 +13,7 @@ namespace Asio;
 /**
  * Class Service
  *
- * Provide access to instantiation of IO objects.
+ * Provide access to instantiation of I/O objects.
  *
  * @package Asio
  */
@@ -88,6 +88,13 @@ class Service
      * @return Signal
      */
     function addSignal() {}
+
+    /**
+     * Add new stream descriptor.
+     *
+     * @return StreamDescriptor
+     */
+    function addStreamDescriptor() {}
 
     /**
      * Add new strand.

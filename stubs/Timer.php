@@ -44,9 +44,4 @@ final class Timer implements IoObject
      * {@inheritdoc}
      */
     function cancel() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

@@ -34,9 +34,4 @@ final class UdpResolver implements Resolver
      * {@inheritdoc}
      */
     function cancel() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

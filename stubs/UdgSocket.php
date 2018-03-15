@@ -79,9 +79,4 @@ final class UdgSocket implements DatagramSocket, LocalSocket
      * {@inheritdoc}
      */
     function close() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }
