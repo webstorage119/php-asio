@@ -83,9 +83,4 @@ final class UnixSocket implements StreamSocket, LocalSocket
      * {@inheritdoc}
      */
     function close() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

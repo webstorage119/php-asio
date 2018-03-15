@@ -21,4 +21,5 @@ script:
   - phpize
   - ./configure
   - make
+  - make test
   - sudo make install

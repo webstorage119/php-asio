@@ -60,9 +60,4 @@ final class Signal implements IoObject
      * {@inheritdoc}
      */
     function cancel() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

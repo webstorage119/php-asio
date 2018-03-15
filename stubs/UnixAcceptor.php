@@ -66,9 +66,4 @@ final class UnixAcceptor implements Acceptor
      * {@inheritdoc}
      */
     function close() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }

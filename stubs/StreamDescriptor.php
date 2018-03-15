@@ -72,9 +72,4 @@ final class StreamDescriptor implements IoObject
      * {@inheritdoc}
      */
     function cancel() {}
-
-    /**
-     * {@inheritdoc}
-     */
-    function destroy() {}
 }
