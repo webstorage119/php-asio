@@ -39,24 +39,28 @@
     PHP_ABSTRACT_ME("", name, arginfo)
 
 namespace p3 {
+    /// Native object to Zend object.
     template <class T>
     zend_object* to_zend_object(T* obj)
     {
         return reinterpret_cast<zend_object*>(obj + 1);
     }
 
+    /// Zend object to native object.
     template <class T>
     T* to_object(zend_object* obj)
     {
         return reinterpret_cast<T*>(obj) - 1;
     }
 
+    /// Zval to native object.
     template <class T>
     T* to_object(zval* obj)
     {
         return reinterpret_cast<T*>(Z_OBJ_P(obj)) - 1;
     }
 
+    /// Allocate new object.
     template <class T, typename InitFunc>
     zend_object* alloc_object(zend_class_entry* ce, InitFunc init)
     {
@@ -69,6 +73,7 @@ namespace p3 {
         return zobj;
     }
 
+    /// Allocate new object with default constructor.
     template <class T>
     typename std::enable_if<std::is_constructible<T>::value, zend_object*>::type
         create_object(zend_class_entry* ce)
@@ -86,6 +91,7 @@ namespace p3 {
         return nullptr;
     }
 
+    /// Destroy an object.
     template <class T>
     void dtor_object(zend_object *obj)
     {
@@ -93,10 +99,10 @@ namespace p3 {
         to_object<T>(obj)->~T();
     }
 
-    template <class T>
-    zend_object* create_thrown_object(zend_class_entry* ce) {
-        zend_throw_exception_ex(zend_ce_error, 0,
-            "%s may not be directly instantiated", ZSTR_VAL(ce->name));
+    /// Fail to create object if there's no default constructor.
+    inline zend_object* create_object_fail(zend_class_entry* ce) {
+        php_error_docref(nullptr, E_ERROR,
+            "%s should not be directly instantiated.", ZSTR_VAL(ce->name));
         return zend_objects_new(ce);
     }
 
@@ -107,7 +113,7 @@ namespace p3 {
         INIT_CLASS_ENTRY_EX(ce, name, strlen(name), methods);
         T::class_entry = zend_register_internal_class(&ce);
         T::class_entry->create_object =
-            std::is_constructible<T>::value ? create_object<T> : create_thrown_object<T>;
+            std::is_constructible<T>::value ? create_object<T> : create_object_fail;
         memcpy(&T::handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
         T::handlers.offset = sizeof(T);
         T::handlers.free_obj = dtor_object<T>;

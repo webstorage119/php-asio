@@ -3,7 +3,6 @@ Test for forking.
 --FILE--
 <?php
 $service = new Asio\Service;
-
 function fork_worker($service, $signal)
 {
     if ($ec = $service->forkPrepare())

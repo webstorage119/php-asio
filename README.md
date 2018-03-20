@@ -19,7 +19,7 @@ See the [Wiki](https://github.com/CismonX/php-asio/wiki) page for documentation.
 
 Signatures of classes and functions can be found within [stubs/](stubs/) directory, with PHPDoc.
 
-There are also some examples in the [examples/](examples/) directory.
+There are also some test cases in the [tests/](tests/) directory.
 
 ## 3. TODO list
 
