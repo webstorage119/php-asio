@@ -20,21 +20,26 @@ namespace asio
         CORO_RETURN_NULL();
     }
 
-    P3_METHOD(timer, expire)
+    P3_METHOD(timer, expiresFromNow)
     {
-        zend_long time;
-        zend_bool use_timestamp = 0;
+        zend_long duration;
         ZEND_PARSE_PARAMETERS_START(1, 2)
-            Z_PARAM_LONG(time)
-            Z_PARAM_OPTIONAL
-            Z_PARAM_BOOL(use_timestamp)
+            Z_PARAM_LONG(duration)
         ZEND_PARSE_PARAMETERS_END();
         boost::system::error_code ec;
-        if (use_timestamp)
-            timer_.expires_at(boost::posix_time::from_time_t(time / 1000) +
-                boost::posix_time::millisec(time % 1000), ec);
-        else
-            timer_.expires_from_now(boost::posix_time::millisec(time), ec);
+        timer_.expires_from_now(boost::posix_time::millisec(duration), ec);
+        RETVAL_EC(ec);
+    }
+
+    P3_METHOD(timer, expiresAt)
+    {
+        zend_long timestamp;
+        ZEND_PARSE_PARAMETERS_START(1, 2)
+            Z_PARAM_LONG(timestamp)
+        ZEND_PARSE_PARAMETERS_END();
+        boost::system::error_code ec;
+        timer_.expires_at(boost::posix_time::from_time_t(timestamp / 1000) +
+            boost::posix_time::millisec(timestamp % 1000), ec);
         RETVAL_EC(ec);
     }
 

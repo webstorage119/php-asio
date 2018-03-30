@@ -3,7 +3,6 @@ Test for forking.
 --FILE--
 <?php
 $service = new Asio\Service;
-
 function fork_worker($service, $signal)
 {
     if ($ec = $service->forkPrepare())
@@ -22,7 +21,7 @@ function fork_worker($service, $signal)
             die('Service::forkParent() failed. '. posix_strerror($ec));
         $signal->cancel();
         $timer = $service->addTimer();
-        $timer->expire(100);
+        $timer->expiresFromNow(100);
         $timer->wait($timer_cb = function ($timer) use (&$timer_cb) {
             echo 'child ';
         });
