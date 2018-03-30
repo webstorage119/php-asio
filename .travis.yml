@@ -21,6 +21,4 @@ script:
   - phpize
   - ./configure
   - make
-
-after_success:
-  - make test
+  - echo $'n\n' | make test

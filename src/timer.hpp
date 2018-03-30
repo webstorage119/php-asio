@@ -27,9 +27,14 @@ namespace asio
             boost::asio::io_service& io_service
         ) : base(io_service), timer_(io_service) {}
 
-        /* {{{ proto int Timer::expire(int time, [bool use_timestamp = false]);
-         * Set timer expiry time. */
-        P3_METHOD_DECLARE(expire);
+        /* {{{ proto int Timer::expiresFromNow(int duration);
+         * Set the timer's expiry time relative to now. */
+        P3_METHOD_DECLARE(expiresFromNow);
+        /* }}} */
+
+        /* {{{ proto int Timer::expiresFromNow(int timestamp);
+        * Set the timer's expiry time as an absolute time. */
+        P3_METHOD_DECLARE(expiresAt);
         /* }}} */
 
         /* {{{ proto Future Timer::wait([callable callback], [mixed argument]);

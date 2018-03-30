@@ -23,13 +23,20 @@ final class Timer implements IoObject
     private function __construct() {}
 
     /**
-     * Set timer expiry time.
+     * Set the timer's expiry time relative to now.
      *
-     * @param int $time : Milliseconds from now or UNIX timestamp(in milliseconds).
-     * @param bool $use_timestamp : Use timestamp or relative time as first parameter.
+     * @param int $duration : Milliseconds from now.
      * @return int : Error code.
      */
-    function expire(int $time, bool $use_timestamp = false) {}
+    function expiresFromNow(int $duration) {}
+
+    /**
+     * Set the timer's expiry time as an absolute time.
+     *
+     * @param int $timestamp : UNIX timestamp(in milliseconds).
+     * @return int : Error code.
+     */
+    function expiresAt(int $timestamp) {}
 
     /**
      * Initiate an asynchronous wait against the timer.

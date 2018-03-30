@@ -4,7 +4,7 @@ Test for `Timer`.
 <?php
 $service = new Asio\Service;
 $timer = $service->addTimer();
-if ($ec = $timer->expire(200))
+if ($ec = $timer->expiresFromNow(200))
     die('Timer::expire() failed. '.posix_strerror($ec));
 $start_time = microtime(true);
 $timer->wait(function ($timer, $ec) use ($start_time) {

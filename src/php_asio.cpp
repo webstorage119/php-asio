@@ -46,9 +46,12 @@ ZEND_BEGIN_ARG_INFO(strand_wrap_arginfo, 0)
     ZEND_ARG_CALLABLE_INFO(0, callback, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(timer_expire_arginfo, 0)
-    ZEND_ARG_TYPE_INFO(0, time, IS_LONG, 0)
-    ZEND_ARG_INFO(0, use_timestamp)
+ZEND_BEGIN_ARG_INFO(timer_expires_from_now_arginfo, 0)
+    ZEND_ARG_TYPE_INFO(0, duration, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(timer_expires_at_arginfo, 0)
+    ZEND_ARG_TYPE_INFO(0, timestamp, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(timer_wait_arginfo, 0)
@@ -226,7 +229,8 @@ static zend_function_entry io_object_method[] = {
 };
 
 static zend_function_entry timer_methods[] = {
-    P3_ME_D(asio::timer, expire, timer_expire_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(asio::timer, expiresFromNow, timer_expires_from_now_arginfo, ZEND_ACC_PUBLIC)
+    P3_ME_D(asio::timer, expiresAt, timer_expires_at_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::timer, wait, timer_wait_arginfo, ZEND_ACC_PUBLIC)
     P3_ME_D(asio::timer, cancel, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
