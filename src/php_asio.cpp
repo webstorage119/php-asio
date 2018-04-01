@@ -217,7 +217,7 @@ static zend_function_entry strand_methods[] = {
 };
 
 static zend_function_entry wrapped_handler_methods[] = {
-    P3_ME_D(asio::wrapped_handler, __invoke, nullptr, ZEND_ACC_PUBLIC | ZEND_ACC_CALL_VIA_TRAMPOLINE)
+    P3_ME_D(asio::wrapped_handler, __invoke, nullptr, ZEND_ACC_PUBLIC)
     PHP_FE_END
 };
 #endif // ENABLE_STRAND

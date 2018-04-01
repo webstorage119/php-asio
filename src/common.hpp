@@ -126,11 +126,18 @@
     return retval
 
 // If you don't need multi-threading support for I/O objects, you can disable Strand for better performance.
+#if defined(ENABLE_STRAND) && !defined(ZTS)
+#undef ENABLE_STRAND
+#endif
 #ifdef ENABLE_STRAND
-#define STRAND_UNWRAP() future->strand(cb)
+#define STRAND_UNWRAP() \
+    callback = future->handle_strand(callback); \
+    if (future->get_strand()) \
+        ZVAL_COPY_VALUE(cb, callback); \
+    else
 #define STRAND_RESOLVE(arg) future->get_strand() ? future->get_strand()->wrap(arg) : arg
 #else
-#define STRAND_UNWRAP() cb
+#define STRAND_UNWRAP()
 #define STRAND_RESOLVE(arg) arg
 #endif // ENABLE_STRAND
 
@@ -159,22 +166,30 @@
         efree(argument); \
     }
 
+#define PHP_ASIO_INC_HANDLER_COUNT() \
+    if (handler_count_inc() == 1) \
+        GC_ADDREF(p3::to_zend_object(this))
+
+#define PHP_ASIO_DEC_HANDLER_COUNT() \
+    if (handler_count_dec() == 0) \
+        PHP_ASIO_OBJ_DTOR(this)
+
 // To ensure the callback and the extra arg is still alive when async operation resolves,
 // We shall allocate new memory on the heap.
 #define PHP_ASIO_FUTURE_INIT() \
-    if (handler_count_inc() == 1) \
-        GC_ADDREF(p3::to_zend_object(this)); \
+    PHP_ASIO_INC_HANDLER_COUNT(); \
+    FUTURE_INIT(); \
     zval* cb = nullptr; \
     if (callback) { \
         ZVAL_ALLOC(cb); \
-        ZVAL_COPY(cb, callback); \
+        STRAND_UNWRAP() \
+            ZVAL_COPY(cb, callback); \
     } \
     zval* args = nullptr; \
     if (argument) { \
         ZVAL_ALLOC(args); \
         ZVAL_COPY(args, argument); \
-    } \
-    FUTURE_INIT()
+    }
 
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;

@@ -6,8 +6,6 @@
 
 #include "future.hpp"
 #include "generator.hpp"
-#include "zend_generators.h"
-
 #include "timer.hpp"
 #include "signal.hpp"
 #include "resolver.hpp"
@@ -58,6 +56,10 @@ namespace asio
         auto io_object = static_cast<V*>(io_object_);
         if (io_object->handler_count_dec() == 0)
             PHP_ASIO_OBJ_DTOR(io_object);
+#ifdef ENABLE_STRAND
+        if (strand_ && strand_->handler_count_dec() == 0)
+            PHP_ASIO_OBJ_DTOR(strand_);
+#endif // ENABLE_STRAND
 #ifdef ENABLE_COROUTINE
         PHP_ASIO_OBJ_DTOR(this);
 #else
@@ -66,12 +68,12 @@ namespace asio
     }
 
 #ifdef ENABLE_STRAND
-    zval* future::strand(zval* callable)
+    zval* future::handle_strand(zval* callable)
     {
         if (callable && Z_TYPE_P(callable) == IS_OBJECT &&
             instanceof_function(Z_OBJCE_P(callable), wrapped_handler::class_entry)) {
-            auto wrapped_hander = p3::to_object<wrapped_handler>(callable);
-            strand_ = &wrapped_hander->strand_;
+            const auto wrapped_hander = p3::to_object<wrapped_handler>(callable);
+            strand_ = wrapped_hander->strand_;
             return wrapped_hander->callback_;
         }
         return callable;

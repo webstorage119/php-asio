@@ -6,6 +6,13 @@
 
 #pragma once
 
+#ifdef ZTS
+#include <atomic>
+#define HANDLER_COUNT_TYPE std::atomic<unsigned short>
+#else
+#define HANDLER_COUNT_TYPE unsigned short
+#endif // ZTS
+
 #include "common.hpp"
 
 namespace asio
@@ -18,7 +25,7 @@ namespace asio
         boost::asio::io_service& io_service_;
 
         /// Count of pending async handlers.
-        unsigned short handler_count_ = 0;
+        HANDLER_COUNT_TYPE handler_count_;
 
         /// Constructor.
         explicit base(boost::asio::io_service& io_service) : io_service_(io_service) {}

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "strand.hpp"
 
 #ifdef ENABLE_STRAND
 namespace asio
@@ -15,7 +16,7 @@ namespace asio
     class wrapped_handler
     {
         /// Strand object for this wrapped handler.
-        boost::asio::strand& strand_;
+        strand* strand_;
 
         /// Wrapped handler callback.
         zval* callback_;
@@ -26,8 +27,11 @@ namespace asio
     public:
         /// Constructor.
         explicit wrapped_handler(
-            boost::asio::strand& strand, zval* callback
-        ) : strand_(strand), callback_(callback) {}
+            strand* strand, zval* callback
+        ) : strand_(strand), callback_(callback)
+        {
+            GC_ADDREF(Z_COUNTED_P(callback_));
+        }
 
         /// Deleted default constructor.
         wrapped_handler() = delete;
@@ -40,6 +44,5 @@ namespace asio
 
         PHP_ASIO_CE_DECLARE();
     };
-
 }
 #endif // ENABLE_STRAND

@@ -10,18 +10,8 @@ PHP_ARG_ENABLE(asio-strand,        for strand support,
 PHP_ARG_ENABLE(asio-null-buffers,  for null buffer support,
 [  --enable-asio-null-buffers  Enable null buffers        ], no, no)
 
-PHP_ARG_ENABLE(asio-debug,         for debug support,
-[  --enable-asio-debug         Compile with debug symbols ], no, no)
-
 if test "$PHP_ASIO" != "no"; then
   PHP_REQUIRE_CXX()
-
-  CXXFLAGS="-std=c++14"
-  if test "$PHP_ASIO_DEBUG" != "no"; then
-    CXXFLAGS+=" -g -O0"
-  else
-    CXXFLAGS+=" -O2"
-  fi
 
   PHP_ASIO_SRC="src/php_asio.cpp \
     src/service.cpp \
@@ -35,7 +25,7 @@ if test "$PHP_ASIO" != "no"; then
     src/acceptor.cpp \
     src/stream_descriptor.cpp"
   
-  PHP_NEW_EXTENSION(asio, $PHP_ASIO_SRC, $ext_shared, cli,, yes)
+  PHP_NEW_EXTENSION(asio, $PHP_ASIO_SRC, $ext_shared, cli, -std=c++14, yes)
 
   if test "$PHP_ASIO_COROUTINE" != "no"; then
     AC_DEFINE(ENABLE_COROUTINE, 1, [ ])

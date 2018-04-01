@@ -28,6 +28,8 @@
     } \
     RETVAL_LONG(0)
 
+#define SERVICE_DISPATCH_CALLBACK(meth) PHP_ASIO_DISPATCH_CALLBACK(meth) })
+
 namespace asio
 {
     P3_METHOD(service, addTimer)
@@ -141,12 +143,12 @@ namespace asio
 
     P3_METHOD(service, post)
     {
-        PHP_ASIO_DISPATCH_CALLBACK(io_service_.post);
+        SERVICE_DISPATCH_CALLBACK(io_service_.post);
     }
 
     P3_METHOD(service, dispatch)
     {
-        PHP_ASIO_DISPATCH_CALLBACK(io_service_.dispatch);
+        SERVICE_DISPATCH_CALLBACK(io_service_.dispatch);
     }
 
     P3_METHOD(service, forkPrepare)
