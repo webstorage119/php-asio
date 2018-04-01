@@ -19,7 +19,7 @@ before_install:
 
 script:
   - phpize
-  - ./configure
+  - ./configure --enable-asio-strand
   - make
 
 after_success:

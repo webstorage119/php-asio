@@ -40,7 +40,7 @@ namespace asio
 
 #ifdef ENABLE_STRAND
         /// Pointer to Strand which wrapped this Future.
-        boost::asio::strand* strand_ = nullptr;
+        strand* strand_ = nullptr;
 #endif // ENABLE_STRAND
 
         /// Constructor.
@@ -73,12 +73,12 @@ namespace asio
         void resolve(const boost::system::error_code& ec, T arg);
 
 #ifdef ENABLE_STRAND
-        zval* strand(zval* callable);
+        zval* handle_strand(zval* callable);
 
         /// Get the pointer to the strand which wrapped this Future.
         boost::asio::strand* get_strand() const
         {
-            return strand_;
+            return strand_ ? strand_->implmentation() : nullptr;
         }
 #endif // ENABLE_STRAND
 

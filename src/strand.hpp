@@ -24,7 +24,7 @@
         ZVAL_COPY(args, argument); \
     else \
         ZVAL_NULL(args); \
-    meth([cb, args]() { \
+    meth([this, cb, args]() { \
         INIT_RETVAL(); \
         call_user_function(CG(function_table), nullptr, cb, PASS_RETVAL, 1, args); \
         CORO_REGISTER(retval); \
@@ -32,7 +32,6 @@
         zval_ptr_dtor(args); \
         efree(cb); \
         efree(args); \
-    })
 
 #ifdef ENABLE_STRAND
 namespace asio
@@ -75,6 +74,12 @@ namespace asio
          * Create a new handler that automatically dispatches the wrapped handler on the strand. */
         P3_METHOD_DECLARE(wrap);
         /* }}} */
+
+        /// Returns the wrapped Boost.Asio strand.
+        boost::asio::strand* implmentation()
+        {
+            return &strand_;
+        }
 
         PHP_ASIO_CE_DECLARE();
     };

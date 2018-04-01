@@ -134,7 +134,7 @@ namespace asio
         PHP_ASIO_FUTURE_INIT();
         auto asio_socket = p3::to_object<socket<Protocol>>(accepted_socket);
         future->template on_resolve<NOARG>(boost::bind(
-            &acceptor::handler, this, _1, asio_socket, STRAND_UNWRAP(), args));
+            &acceptor::handler, this, _1, asio_socket, cb, args));
         acceptor_.async_accept(asio_socket->get_socket(), STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
     }

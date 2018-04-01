@@ -181,8 +181,7 @@ namespace asio
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<NOARG>(boost::bind(
-            &socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
+        future->on_resolve<NOARG>(boost::bind(&socket::connect_handler, this, _1, cb, args));
         socket_.async_connect({ boost::asio::ip::address::from_string(ZSTR_VAL(address)),
             static_cast<unsigned short>(port) }, STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
@@ -204,8 +203,7 @@ namespace asio
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<NOARG>(boost::bind(
-            &socket::connect_handler, this, _1, STRAND_UNWRAP(), args));
+        future->on_resolve<NOARG>(boost::bind(&socket::connect_handler, this, _1, cb, args));
         socket_.async_connect({ ZSTR_VAL(path) }, STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
     }
@@ -244,7 +242,7 @@ namespace asio
         auto endpoint = new typename Protocol::endpoint;
         PHP_ASIO_FUTURE_INIT();
         future->template on_resolve<size_t>(boost::bind(&socket::recv_handler,
-            this, _1, _2, buffer_container, endpoint, STRAND_UNWRAP(), args));
+            this, _1, _2, buffer_container, endpoint, cb, args));
 #ifdef ENABLE_NULL_BUFFERS
         if (length == 0)
             socket_.async_receive_from(boost::asio::null_buffers(),
@@ -284,7 +282,7 @@ namespace asio
             zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<size_t>(boost::bind(&socket::write_handler,
-            this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+            this, _1, _2, buffer_container, cb, args));
 #ifdef ENABLE_NULL_BUFFERS
         if (ZSTR_LEN(data) == 0)
             socket_.async_send_to(boost::asio::null_buffers(),
@@ -321,7 +319,7 @@ namespace asio
             zend_string_copy(data);
         PHP_ASIO_FUTURE_INIT();
         future->on_resolve<size_t>(boost::bind(
-            &socket::write_handler, this, _1, _2, buffer_container, STRAND_UNWRAP(), args));
+            &socket::write_handler, this, _1, _2, buffer_container, cb, args));
 #ifdef ENABLE_NULL_BUFFERS
         if (ZSTR_LEN(data) == 0)
             socket_.async_send_to(boost::asio::null_buffers(), { ZSTR_VAL(path) },

@@ -23,9 +23,9 @@ There are also some test cases in the [tests/](tests/) directory.
 
 ## 3. TODO list
 
-* Fix memory leak (once in every 9,998 Zend objects). (Priority: **high**)
+* Multi-threading support. (Priority: **high**)
 
-* Sanity tests and examples for `Strand` and `StreamDescriptor`. (Priority: **medium**)
+* Fix memory leak (once in every 9,998 Zend objects). (Priority: **medium**)
 
 * Add support for serial ports. (Priority: **low**)
 

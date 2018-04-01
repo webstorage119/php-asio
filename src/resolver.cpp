@@ -46,7 +46,7 @@ namespace asio
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
         future->template on_resolve<iterator>(boost::bind(
-            &resolver::handler, this, _1, _2, STRAND_UNWRAP(), args));
+            &resolver::handler, this, _1, _2, cb, args));
         resolver_.async_resolve({ ZSTR_VAL(host), service ? ZSTR_VAL(service) : "" },
             STRAND_RESOLVE(ASYNC_HANDLER_DOUBLE_ARG(iterator)));
         FUTURE_RETURN();

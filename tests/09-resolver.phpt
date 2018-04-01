@@ -12,9 +12,8 @@ $service->post(function () use ($service) {
         }
         echo boolval(count($arr));
     });
-
 });
 $service->run();
 ?>
---EXPECTF--
+--EXPECT--
 1

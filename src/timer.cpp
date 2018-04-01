@@ -53,7 +53,7 @@ namespace asio
             Z_PARAM_ZVAL(argument)
         ZEND_PARSE_PARAMETERS_END();
         PHP_ASIO_FUTURE_INIT();
-        future->on_resolve<NOARG>(boost::bind(&timer::handler, this, _1, STRAND_UNWRAP(), args));
+        future->on_resolve<NOARG>(boost::bind(&timer::handler, this, _1, cb, args));
         timer_.async_wait(STRAND_RESOLVE(ASYNC_HANDLER_SINGLE_ARG));
         FUTURE_RETURN();
     }
