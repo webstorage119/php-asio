@@ -83,7 +83,7 @@ namespace asio
     }
     /* }}} */
 
-    /* {{{ proto int TcpAcceptor::bind(string path);
+    /* {{{ proto int UnixAcceptor::bind(string path);
      * Bind the acceptor to the specified local endpoint. */
     template <>
     P3_METHOD(unix_acceptor, bind)
